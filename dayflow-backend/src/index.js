@@ -27,12 +27,21 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 
 // ── Routes ──────────────────────────────────────────────────────────────────
-app.use('/auth',                  authRoutes)
-app.use('/employees',             employeeRoutes)
-app.use('/attendance',            attendanceRoutes)
-app.use('/timeoff',               timeoffRoutes)
-app.use('/timeoff/allocations',   allocationRoutes)
-app.use('/salary',                salaryRoutes)
+// API prefixed routes (Standard REST contract)
+app.use('/api/auth',                authRoutes)
+app.use('/api/employees',           employeeRoutes)
+app.use('/api/attendance',          attendanceRoutes)
+app.use('/api/timeoff',             timeoffRoutes)
+app.use('/api/timeoff/allocations', allocationRoutes)
+app.use('/api/salary',              salaryRoutes)
+
+// Direct routes (backwards compatibility)
+app.use('/auth',                    authRoutes)
+app.use('/employees',               employeeRoutes)
+app.use('/attendance',              attendanceRoutes)
+app.use('/timeoff',                 timeoffRoutes)
+app.use('/timeoff/allocations',     allocationRoutes)
+app.use('/salary',                  salaryRoutes)
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
