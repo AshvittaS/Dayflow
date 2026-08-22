@@ -1,12 +1,31 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, Mail, ArrowUpRight, Plane, Sparkles } from 'lucide-react'
+import { MapPin, ArrowUpRight, Plane, Sparkles } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+
+// High-quality stock portrait headshots mapped by employee ID
+const DEFAULT_AVATARS = {
+  '1': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', // Jamie Doe
+  '2': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', // Alex Kumar
+  '3': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80', // Priya Sharma
+  '4': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', // Marcus Vance
+  '5': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80', // Sarah Chen
+  '6': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80', // David Miller
+  'DF26JD0001': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'DF26AK0002': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+}
 
 export default function EmployeeCard({ employee, overrideStatus, isHighlighted }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [imgError, setImgError] = useState(false)
   const displayStatus = overrideStatus ?? employee?.status ?? 'absent'
   const isSelf = String(employee?.id) === String(user?.employeeId)
+
+  const photoUrl =
+    employee?.avatar ||
+    DEFAULT_AVATARS[String(employee?.id)] ||
+    DEFAULT_AVATARS[employee?.loginId]
 
   const initials = employee?.name
     ? employee.name
@@ -16,7 +35,7 @@ export default function EmployeeCard({ employee, overrideStatus, isHighlighted }
         .slice(0, 2)
     : '?'
 
-  // Consistent Department Color System (Reused across cards and filter pills)
+  // Consistent Department Color System
   const deptStyles = {
     Engineering: {
       bar: 'border-l-[#5B4FE9]',
@@ -51,7 +70,7 @@ export default function EmployeeCard({ employee, overrideStatus, isHighlighted }
     glow: 'hover:border-slate-400'
   }
 
-  // Soft gradient themes for avatar backgrounds
+  // Soft gradient themes for fallback avatar background
   const avatarThemes = [
     { from: 'from-[#EEEDFC]', to: 'to-[#E0DEF9]', text: 'text-[#4F46E5]' },
     { from: 'from-[#ECFDF5]', to: 'to-[#D1FAE5]', text: 'text-[#059669]' },
@@ -115,13 +134,26 @@ export default function EmployeeCard({ employee, overrideStatus, isHighlighted }
         </div>
       </div>
 
-      {/* ── Center: Avatar + Name + Department Badge ── */}
+      {/* ── Center: Profile Photo + Name + Department Badge ── */}
       <div className="my-4 flex items-center gap-4">
         <div
-          className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl text-base font-extrabold shadow-sm ring-2 ring-white bg-gradient-to-b ${theme.from} ${theme.to} ${theme.text}`}
+          className="relative flex shrink-0 items-center justify-center rounded-2xl overflow-hidden shadow-sm ring-2 ring-white"
           style={{ width: '52px', height: '52px' }}
         >
-          {initials}
+          {photoUrl && !imgError ? (
+            <img
+              src={photoUrl}
+              alt={employee?.name || 'Employee portrait'}
+              onError={() => setImgError(true)}
+              className="h-full w-full object-cover rounded-2xl transition-transform duration-200 group-hover:scale-105"
+            />
+          ) : (
+            <div
+              className={`flex h-full w-full items-center justify-center text-base font-extrabold bg-gradient-to-b ${theme.from} ${theme.to} ${theme.text}`}
+            >
+              {initials}
+            </div>
+          )}
         </div>
 
         <div className="min-w-0 flex-1">

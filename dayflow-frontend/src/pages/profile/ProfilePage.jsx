@@ -23,12 +23,25 @@ import EditProfileModal from '../../components/modals/EditProfileModal.jsx'
 
 const ALL_TABS = ['Resume', 'Private Info', 'Salary Info']
 
+// High-quality stock portrait headshots mapped by employee ID
+const DEFAULT_AVATARS = {
+  '1': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  '2': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  '3': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  '4': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  '5': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+  '6': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+  'DF26JD0001': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'DF26AK0002': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+}
+
 export default function ProfilePage() {
   const { id } = useParams()
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('Resume')
   const [showEditModal, setShowEditModal] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   const isOwnProfile = !id || String(id) === String(currentUser?.employeeId)
   const empId = isOwnProfile ? currentUser?.employeeId : id
@@ -61,6 +74,11 @@ export default function ProfilePage() {
       </div>
     )
   }
+
+  const photoUrl =
+    viewedEmployee?.avatar ||
+    DEFAULT_AVATARS[String(viewedEmployee?.id)] ||
+    DEFAULT_AVATARS[viewedEmployee?.loginId]
 
   const initials = viewedEmployee.name
     ? viewedEmployee.name
@@ -107,13 +125,24 @@ export default function ProfilePage() {
         {/* ── Left Column: Sticky Identity Dossier (Avatar, Name, Quick Contacts) ── */}
         <div className="w-full lg:w-80 shrink-0 lg:sticky lg:top-24 space-y-4">
           <div className="rounded-2xl border border-[#EAEAEC] bg-white p-6 shadow-subtle text-center flex flex-col items-center">
-            {/* Avatar with Status indicator */}
+            {/* Real Profile Photo with Status Indicator & Fallback */}
             <div className="relative mb-4">
               <div
-                className="flex items-center justify-center rounded-full text-2xl font-extrabold text-[#4F46E5] bg-gradient-to-b from-[#EEEDFC] to-[#E0DEF9] ring-4 ring-[#F8F9FA] shadow-md mx-auto"
+                className="relative flex items-center justify-center rounded-full overflow-hidden ring-4 ring-[#F8F9FA] shadow-md mx-auto"
                 style={{ width: '84px', height: '84px' }}
               >
-                {initials}
+                {photoUrl && !imgError ? (
+                  <img
+                    src={photoUrl}
+                    alt={viewedEmployee?.name || 'Profile photo'}
+                    onError={() => setImgError(true)}
+                    className="h-full w-full object-cover rounded-full"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-2xl font-extrabold text-[#4F46E5] bg-gradient-to-b from-[#EEEDFC] to-[#E0DEF9]">
+                    {initials}
+                  </div>
+                )}
               </div>
               <span className="absolute bottom-0 right-0">
                 <StatusDot status={viewedEmployee.status || 'absent'} size="lg" />
