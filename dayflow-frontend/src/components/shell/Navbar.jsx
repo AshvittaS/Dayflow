@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { Bell } from 'lucide-react'
 import AvatarMenu from './AvatarMenu.jsx'
 import { currentUser } from '../../data/mockData.js'
 
@@ -8,70 +10,79 @@ const links = [
   { to: '/timeoff', label: 'Time Off' }
 ]
 
-// § 2 — Top nav: Company Logo | Employees | Attendance | Time Off |
-//        notification icon + avatar with status dot
 export default function Navbar() {
   const navigate = useNavigate()
+  const [userStatus, setUserStatus] = useState(currentUser.status)
+
+  useEffect(() => {
+    function handleStatusUpdate(e) {
+      if (e.detail?.status) {
+        setUserStatus(e.detail.status)
+      }
+    }
+    window.addEventListener('dayflow:status-change', handleStatusUpdate)
+    return () => window.removeEventListener('dayflow:status-change', handleStatusUpdate)
+  }, [])
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-base-border bg-base-panel/80 px-6 py-3 backdrop-blur-sm">
-      {/* Left: logo + nav links */}
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#EAEAEC] bg-white/95 px-6 backdrop-blur-md shadow-[0_1px_2px_0_rgba(0,0,0,0.02)]">
+      {/* Left: Brand logo & Nav tabs */}
       <div className="flex items-center gap-8">
         <button
           aria-label="Go to Employees dashboard"
           onClick={() => navigate('/employees')}
-          className="flex items-center gap-2"
+          className="group flex items-center gap-2.5 outline-none"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/20 ring-1 ring-accent/40">
-            <span className="text-xs font-bold text-accent">D</span>
+          {/* Custom geometric logo mark */}
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#5B4FE9] text-white shadow-[0_2px_6px_rgba(91,79,233,0.35)] transition group-hover:scale-105">
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
           </div>
-          <span className="text-base font-semibold tracking-tight text-white">
-            Day<span className="text-accent">flow</span>
-          </span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-bold tracking-tight text-[#1A1A1F]">
+              Day<span className="text-[#5B4FE9]">flow</span>
+            </span>
+            <span className="hidden text-[10px] font-semibold uppercase tracking-wider text-[#6B6B76] sm:inline-block">
+              HRMS
+            </span>
+          </div>
         </button>
 
-        <nav className="flex gap-1" aria-label="Main navigation">
-          {links.map((l) => (
+        {/* Navigation Tabs */}
+        <nav className="flex items-center gap-1" aria-label="Main navigation">
+          {links.map((link) => (
             <NavLink
-              key={l.to}
-              to={l.to}
+              key={link.to}
+              to={link.to}
               className={({ isActive }) =>
-                `rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                `relative rounded-lg px-3.5 py-1.5 text-xs font-semibold tracking-wide transition-all ${
                   isActive
-                    ? 'bg-accent/15 text-accent'
-                    : 'text-slate-400 hover:bg-base-card hover:text-white'
+                    ? 'bg-[#5B4FE9]/10 text-[#5B4FE9]'
+                    : 'text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]'
                 }`
               }
             >
-              {l.label}
+              {link.label}
             </NavLink>
           ))}
         </nav>
       </div>
 
-      {/* Right: notification bell + avatar */}
+      {/* Right: Notifications & User Avatar */}
       <div className="flex items-center gap-3">
-        {/* Bell icon — badge color/count is a placeholder; real notifications TBD */}
         <button
-          aria-label="Notifications"
-          className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-base-card hover:text-white"
+          aria-label="View notifications"
+          className="relative flex h-8 w-8 items-center justify-center rounded-lg text-[#6B6B76] transition hover:bg-[#F4F4F6] hover:text-[#1A1A1F]"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          >
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
-          {/* Notification badge */}
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent ring-2 ring-base-panel" />
+          <Bell className="h-4 w-4" />
+          {/* Unread notification indicator */}
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#5B4FE9] ring-2 ring-white" />
         </button>
 
-        <AvatarMenu user={currentUser} />
+        <div className="h-4 w-px bg-[#EAEAEC]" />
+
+        <AvatarMenu user={currentUser} overrideStatus={userStatus} />
       </div>
     </header>
   )

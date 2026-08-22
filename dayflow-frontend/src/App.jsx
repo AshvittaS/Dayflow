@@ -21,8 +21,8 @@ export default function App() {
         <Route path="/timeoff" element={<TimeOffPage />} />
       </Route>
 
-      <Route path="/" element={<Navigate to="/signin" replace />} />
-      <Route path="*" element={<Navigate to="/signin" replace />} />
+      <Route path="/" element={<Navigate to="/employees" replace />} />
+      <Route path="*" element={<Navigate to="/employees" replace />} />
     </Routes>
   )
 }

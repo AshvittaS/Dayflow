@@ -1,52 +1,96 @@
 import { useNavigate } from 'react-router-dom'
+import { MapPin, Mail } from 'lucide-react'
 import StatusDot from '../../components/ui/StatusDot.jsx'
+import { currentUser } from '../../data/mockData.js'
 
-// § 3 — cards are clickable → opens that employee's profile in view-only mode.
-// overrideStatus: optional live status pushed by the parent (e.g. after check-in).
 export default function EmployeeCard({ employee, overrideStatus }) {
   const navigate = useNavigate()
   const displayStatus = overrideStatus ?? employee.status
+  const isSelf = employee.id === currentUser.id
 
   const initials = employee.name
     .split(' ')
     .map((n) => n[0])
     .join('')
 
-  // Pick a deterministic accent shade from the employee id for variety
-  const avatarColors = [
-    'bg-violet-500/20 text-violet-300',
-    'bg-blue-500/20 text-blue-300',
-    'bg-emerald-500/20 text-emerald-300',
-    'bg-pink-500/20 text-pink-300',
-    'bg-amber-500/20 text-amber-300',
+  // Harmonious, desaturated background & text colors for avatars
+  const avatarThemes = [
+    { bg: 'bg-[#EEEDFC]', text: 'text-[#5B4FE9]' }, // Indigo
+    { bg: 'bg-[#ECFDF5]', text: 'text-[#059669]' }, // Emerald
+    { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]' }, // Blue
+    { bg: 'bg-[#FFF7ED]', text: 'text-[#EA580C]' }, // Warm Orange
+    { bg: 'bg-[#FDF4FF]', text: 'text-[#C026D3]' }, // Fuchsia
+    { bg: 'bg-[#F0FDFA]', text: 'text-[#0D9488]' }  // Teal
   ]
-  const colorClass =
-    avatarColors[parseInt(employee.id.replace(/\D/g, ''), 10) % avatarColors.length]
+
+  const charCode = employee.id.charCodeAt(employee.id.length - 1) || 0
+  const theme = avatarThemes[charCode % avatarThemes.length]
 
   return (
-    <button
+    <div
       onClick={() => navigate(`/profile/${employee.id}`)}
-      className="group relative flex flex-col items-center gap-3 rounded-xl border border-base-border bg-base-card p-5 text-left transition duration-200 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/10 hover:-translate-y-0.5"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          navigate(`/profile/${employee.id}`)
+        }
+      }}
+      className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-5 text-left transition-all duration-200 cursor-pointer ${
+        isSelf
+          ? 'border-[#5B4FE9]/30 ring-1 ring-[#5B4FE9]/20 shadow-[0_2px_8px_rgba(91,79,233,0.06)]'
+          : 'border-[#EAEAEC] shadow-subtle'
+      } hover:-translate-y-1 hover:border-[#5B4FE9]/50 hover:shadow-[0_12px_24px_-6px_rgba(91,79,233,0.1),0_4px_8px_-4px_rgba(0,0,0,0.03)]`}
     >
-      {/* Status indicator — top-right (§3) */}
-      <span className="absolute right-3 top-3">
-        <StatusDot status={displayStatus} />
-      </span>
+      {/* Top row: Self tag (if current user) + pinned status indicator */}
+      <div className="flex items-center justify-between w-full">
+        {isSelf ? (
+          <span className="inline-flex items-center rounded-full bg-[#5B4FE9]/10 px-2 py-0.5 text-[10px] font-semibold text-[#5B4FE9]">
+            You
+          </span>
+        ) : (
+          <span className="font-mono text-[10px] text-[#92929D]">{employee.loginId}</span>
+        )}
 
-      {/* Avatar */}
-      <div
-        className={`flex h-14 w-14 items-center justify-center rounded-full text-lg font-semibold ${colorClass}`}
-      >
-        {initials}
+        {/* Pinned status indicator in top-right */}
+        <div className="flex items-center gap-1.5 rounded-full bg-[#F8F9FA] border border-[#EAEAEC] px-2 py-0.5">
+          <StatusDot status={displayStatus} size="sm" />
+          <span className="text-[10px] font-medium text-[#6B6B76] capitalize">
+            {displayStatus === 'leave' ? 'On Leave' : displayStatus}
+          </span>
+        </div>
       </div>
 
-      {/* Info */}
-      <div className="text-center">
-        <p className="text-sm font-semibold text-white group-hover:text-accent transition-colors">
+      {/* Main card body: Avatar + Name + Role/Dept */}
+      <div className="my-3 flex flex-col items-center text-center">
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold shadow-sm transition group-hover:scale-105 ${theme.bg} ${theme.text}`}
+        >
+          {initials}
+        </div>
+
+        <h3 className="mt-3 text-sm font-bold text-[#1A1A1F] group-hover:text-[#5B4FE9] transition-colors">
           {employee.name}
+        </h3>
+        <p className="text-xs font-medium text-[#6B6B76]">
+          {employee.title || employee.department}
         </p>
-        <p className="mt-0.5 text-xs text-slate-400">{employee.department}</p>
+        <span className="mt-1 text-[11px] text-[#92929D]">
+          {employee.department}
+        </span>
       </div>
-    </button>
+
+      {/* Card footer: Quick metadata (location & email) */}
+      <div className="mt-2 border-t border-[#F1F1F4] pt-3 flex items-center justify-between text-[11px] text-[#6B6B76]">
+        <div className="flex items-center gap-1 truncate max-w-[55%]">
+          <MapPin className="h-3 w-3 text-[#92929D] shrink-0" />
+          <span className="truncate">{employee.location ? employee.location.split(',')[0] : 'Office'}</span>
+        </div>
+        <div className="flex items-center gap-1 truncate max-w-[45%]">
+          <Mail className="h-3 w-3 text-[#92929D] shrink-0" />
+          <span className="truncate">{employee.email.split('@')[0]}</span>
+        </div>
+      </div>
+    </div>
   )
 }
