@@ -471,24 +471,24 @@ export default function AttendancePage() {
         {/* Interactive Progress Dial & Controls */}
         <div className="flex items-center gap-6">
           {/* Progress Ring Dial */}
-          <div className="relative h-32 w-32 flex items-center justify-center">
-            <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 130 130">
+          <div className="relative h-44 w-44 flex items-center justify-center">
+            <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 180 180">
               <circle
-                cx="65"
-                cy="65"
-                r={CIRCLE_R}
+                cx="90"
+                cy="90"
+                r="78"
                 className="stroke-[#F1F1F4]"
-                strokeWidth="8"
+                strokeWidth="10"
                 fill="none"
               />
               <circle
-                cx="65"
-                cy="65"
-                r={CIRCLE_R}
+                cx="90"
+                cy="90"
+                r="78"
                 className="stroke-[#059669] transition-all duration-700 ease-out"
-                strokeWidth="8"
-                strokeDasharray={CIRCUMFERENCE}
-                strokeDashoffset={strokeDashoffset}
+                strokeWidth="10"
+                strokeDasharray={2 * Math.PI * 78}
+                strokeDashoffset={2 * Math.PI * 78 * (1 - progressRatio)}
                 strokeLinecap="round"
                 fill="none"
               />
@@ -496,17 +496,17 @@ export default function AttendancePage() {
             <button
               onClick={handleCheckInToggle}
               disabled={actionLoading}
-              className={`absolute inset-3 rounded-full flex flex-col items-center justify-center gap-0.5 transition-all duration-200 active:scale-95 shadow-sm ${
+              className={`absolute inset-4 rounded-full flex flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-95 shadow-sm ${
                 isCheckedIn
                   ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#FCA5A5] hover:bg-[#FEE2E2]'
                   : 'bg-[#5B4FE9] text-white hover:bg-[#4B3FE9]'
               }`}
             >
-              {isCheckedIn ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
-              <span className="text-[10px] font-bold uppercase tracking-wider">
+              {isCheckedIn ? <LogOut className="h-6 w-6" /> : <LogIn className="h-6 w-6" />}
+              <span className="text-sm font-bold uppercase tracking-wider leading-none">
                 {isCheckedIn ? 'Out' : 'In'}
               </span>
-              <span className="font-mono text-[10px] font-semibold">
+              <span className="font-mono text-xs font-semibold leading-none">
                 {hoursToDur(workedSeconds / 3600)}
               </span>
             </button>
