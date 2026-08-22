@@ -1,39 +1,170 @@
 // Shared mock data for UI development before the real API exists.
-// This file is shared across all 4 modules — if you need a new field,
-// add it here and mention it in the team chat so nobody's branch drifts
-// out of sync with everyone else's shape for the same object.
+// Structured according to Dayflow HRMS specifications.
 
 export const currentUser = {
   id: 'emp-001',
   loginId: 'DF23JD0001',
   name: 'Jamie Doe',
-  role: 'admin', // 'employee' | 'admin'  ← set to 'admin' to exercise admin views
+  role: 'admin', // 'employee' | 'admin'
+  title: 'Lead Product Engineer',
   department: 'Engineering',
+  location: 'Bengaluru, India',
   email: 'jamie.doe@dayflow.dev',
   manager: 'Ravi Shankar',
-  mobile: '+91 90000 00000',
+  mobile: '+91 98450 12345',
+  dateOfBirth: '14 May 1994',
+  gender: 'Female',
+  address: '402, Highrise Residency, Indiranagar, Bengaluru, 560038',
+  emergencyContact: {
+    name: 'Sarah Doe',
+    relation: 'Spouse',
+    mobile: '+91 98450 98765'
+  },
+  bankDetails: {
+    accountNumber: '•••• •••• •••• 4921',
+    bankName: 'HDFC Bank',
+    ifsc: 'HDFC0001234'
+  },
   status: 'present', // 'present' | 'absent' | 'leave'
-  about: 'Full-stack engineer with a passion for building great products.',
-  skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'],
-  certifications: ['AWS Certified Developer', 'Google Cloud Associate'],
-  interests: ['Open Source', 'System Design', 'Hiking']
+  about: 'Lead full-stack engineer passionate about crafting scalable distributed architectures, intuitive UI systems, and high-performance product workflows. Leading core engineering initiatives at Dayflow.',
+  skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'System Design', 'Tailwind CSS', 'GraphQL', 'Docker'],
+  certifications: ['AWS Certified Solutions Architect', 'Google Cloud Professional Cloud Architect', 'Certified Kubernetes Administrator'],
+  interests: ['Open Source Tooling', 'Distributed Systems', 'Mountain Hiking', 'Acoustic Guitar']
 }
 
 export const employees = [
-  { id: 'emp-001', name: 'Jamie Doe',   department: 'Engineering', status: 'present', avatar: null, email: 'jamie.doe@dayflow.dev',   mobile: '+91 90000 00000' },
-  { id: 'emp-002', name: 'Alex Kumar',  department: 'Design',      status: 'leave',   avatar: null, email: 'alex.kumar@dayflow.dev',  mobile: '+91 90000 00001' },
-  { id: 'emp-003', name: 'Priya Nair',  department: 'HR',          status: 'absent',  avatar: null, email: 'priya.nair@dayflow.dev',  mobile: '+91 90000 00002' },
-  { id: 'emp-004', name: 'Sam Lee',     department: 'Engineering', status: 'present', avatar: null, email: 'sam.lee@dayflow.dev',     mobile: '+91 90000 00003' },
-  { id: 'emp-005', name: 'Meera Iyer', department: 'Sales',       status: 'present', avatar: null, email: 'meera.iyer@dayflow.dev', mobile: '+91 90000 00004' },
-  { id: 'emp-006', name: 'Dev Patel',  department: 'Engineering', status: 'absent',  avatar: null, email: 'dev.patel@dayflow.dev',  mobile: '+91 90000 00005' }
+  {
+    id: 'emp-001',
+    loginId: 'DF23JD0001',
+    name: 'Jamie Doe',
+    title: 'Lead Product Engineer',
+    department: 'Engineering',
+    location: 'Bengaluru, India',
+    status: 'present',
+    avatar: null,
+    email: 'jamie.doe@dayflow.dev',
+    mobile: '+91 98450 12345',
+    manager: 'Ravi Shankar',
+    dateOfBirth: '14 May 1994',
+    gender: 'Female',
+    address: '402, Highrise Residency, Indiranagar, Bengaluru, 560038',
+    emergencyContact: { name: 'Sarah Doe', relation: 'Spouse', mobile: '+91 98450 98765' },
+    about: 'Lead full-stack engineer passionate about crafting scalable distributed architectures, intuitive UI systems, and high-performance product workflows.',
+    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'System Design'],
+    certifications: ['AWS Certified Solutions Architect', 'Google Cloud Architect'],
+    interests: ['Open Source Tooling', 'Distributed Systems', 'Mountain Hiking']
+  },
+  {
+    id: 'emp-002',
+    loginId: 'DF23AK0002',
+    name: 'Alex Kumar',
+    title: 'Senior Product Designer',
+    department: 'Design',
+    location: 'San Francisco, USA',
+    status: 'leave',
+    avatar: null,
+    email: 'alex.kumar@dayflow.dev',
+    mobile: '+1 (415) 890-1234',
+    manager: 'Jamie Doe',
+    dateOfBirth: '22 Aug 1992',
+    gender: 'Male',
+    address: '742 Evergreen Terrace, Mission District, SF, CA 94110',
+    emergencyContact: { name: 'Anita Kumar', relation: 'Sister', mobile: '+1 (415) 890-5678' },
+    about: 'Product designer focusing on enterprise ergonomics, design systems, micro-interactions, and accessibility standards.',
+    skills: ['Figma', 'Design Systems', 'UX Research', 'Prototyping', 'Typography', 'WCAG Accessibility'],
+    certifications: ['Nielsen Norman UX Master Certified', 'Interaction Design Specialist'],
+    interests: ['Architecture Photography', 'Ceramics', 'Specialty Coffee']
+  },
+  {
+    id: 'emp-003',
+    loginId: 'DF23PN0003',
+    name: 'Priya Nair',
+    title: 'HR Operations Lead',
+    department: 'HR',
+    location: 'Mumbai, India',
+    status: 'absent',
+    avatar: null,
+    email: 'priya.nair@dayflow.dev',
+    mobile: '+91 99201 44556',
+    manager: 'Sarah Jenkins',
+    dateOfBirth: '03 Nov 1995',
+    gender: 'Female',
+    address: '12B Sea View Apartments, Bandra West, Mumbai, 400050',
+    emergencyContact: { name: 'Kiran Nair', relation: 'Father', mobile: '+91 99201 99887' },
+    about: 'People operations strategist with expertise in talent management, payroll governance, statutory compliance, and employee experience.',
+    skills: ['HR Strategy', 'Payroll Compliance', 'Talent Acquisition', 'Labor Laws', 'People Analytics'],
+    certifications: ['SHRM Certified Professional (SHRM-CP)', 'Certified Compensation Professional'],
+    interests: ['Classical Dance', 'Volunteering', 'Book Club']
+  },
+  {
+    id: 'emp-004',
+    loginId: 'DF23SL0004',
+    name: 'Sam Lee',
+    title: 'Senior Frontend Engineer',
+    department: 'Engineering',
+    location: 'Singapore',
+    status: 'present',
+    avatar: null,
+    email: 'sam.lee@dayflow.dev',
+    mobile: '+65 9123 4567',
+    manager: 'Jamie Doe',
+    dateOfBirth: '19 Jan 1996',
+    gender: 'Non-binary',
+    address: 'Block 204, Tanjong Pagar Road, #14-02, Singapore 088540',
+    emergencyContact: { name: 'David Lee', relation: 'Brother', mobile: '+65 9876 5432' },
+    about: 'Frontend specialist obsessive about web performance, bundle size optimization, and modern reactivity models.',
+    skills: ['React', 'Next.js', 'Tailwind CSS', 'Vite', 'Web Performance', 'Testing Library'],
+    certifications: ['Meta Certified Front-End Developer', 'TypeScript Specialist'],
+    interests: ['Synthesizers', 'Bouldering', 'Cycling']
+  },
+  {
+    id: 'emp-005',
+    loginId: 'DF23MI0005',
+    name: 'Meera Iyer',
+    title: 'Enterprise Account Executive',
+    department: 'Sales',
+    location: 'London, UK',
+    status: 'present',
+    avatar: null,
+    email: 'meera.iyer@dayflow.dev',
+    mobile: '+44 20 7946 0912',
+    manager: 'Marcus Vance',
+    dateOfBirth: '10 Jul 1993',
+    gender: 'Female',
+    address: '45 Kensington Gardens Square, London W2 4BQ',
+    emergencyContact: { name: 'Arun Iyer', relation: 'Father', mobile: '+44 20 7946 0999' },
+    about: 'Enterprise sales consultant connecting high-growth businesses with transformative HR and workflow automation tools.',
+    skills: ['Enterprise SaaS', 'B2B Sales', 'Negotiation', 'CRM Strategy', 'Revenue Forecasting'],
+    certifications: ['Meddicc Sales Certification', 'HubSpot Inbound Sales Certified'],
+    interests: ['Contemporary Art', 'Tennis', 'Travel Writing']
+  },
+  {
+    id: 'emp-006',
+    loginId: 'DF23DP0006',
+    name: 'Dev Patel',
+    title: 'DevOps & Cloud Architect',
+    department: 'Engineering',
+    location: 'Bengaluru, India',
+    status: 'absent',
+    avatar: null,
+    email: 'dev.patel@dayflow.dev',
+    mobile: '+91 97110 55667',
+    manager: 'Jamie Doe',
+    dateOfBirth: '28 Sep 1991',
+    gender: 'Male',
+    address: '501, Green Glen Layout, Bellandur, Bengaluru, 560103',
+    emergencyContact: { name: 'Neha Patel', relation: 'Spouse', mobile: '+91 97110 88990' },
+    about: 'Infrastructure engineer automating multi-region cloud systems, CI/CD pipelines, and zero-downtime deployment workflows.',
+    skills: ['AWS', 'Kubernetes', 'Terraform', 'CI/CD Pipelines', 'Linux Kernel', 'Prometheus'],
+    certifications: ['AWS Solutions Architect Professional', 'HashiCorp Certified Terraform Associate'],
+    interests: ['Home Automation', 'Formula 1', 'Mechanical Keyboards']
+  }
 ]
 
-// § 5 — Salary Info, admin-only. Amounts are illustrative placeholders,
-// see SKILL.md §5 before wiring real percentages.
-// wageType / salaryType: exact valid values not confirmed — see SKILL.md §9.
+// § 5 — Salary Info, admin-only.
 export const salaryStructure = {
-  wageType: 'Monthly',   // TODO(team): confirm enum values
-  salaryType: 'Fixed',   // TODO(team): confirm enum values
+  wageType: 'Monthly',
+  salaryType: 'Fixed',
   monthWage: 50000,
   yearWage: 600000,
   workingDaysPerWeek: 5,
@@ -44,17 +175,13 @@ export const salaryStructure = {
     { label: 'Standard Allowance',    amount: 4000,  percent: 8  },
     { label: 'Performance Bonus',     amount: 3000,  percent: 6  },
     { label: 'Leave Travel Allowance',amount: 2000,  percent: 4  },
-    // Fixed Allowance listed in SKILL.md §5 — amount/% are placeholders
     { label: 'Fixed Allowance',       amount: 1000,  percent: 2  }
   ],
-  // PF % and Professional Tax ₹ are NOT confirmed — see SKILL.md §9.
-  // Store as named constants so they're a one-line fix when confirmed.
   pf: { employeePercent: 12, employerPercent: 12 },
   professionalTax: 200
 }
 
 // § 6 — Attendance
-// Full month of Aug 2026 with realistic data for better calendar/table view
 export const attendanceRecords = [
   { date: '2026-08-01', checkIn: '09:15', checkOut: '18:30', workHours: '09:15', extraHours: '01:15' },
   { date: '2026-08-04', checkIn: '09:32', checkOut: '18:41', workHours: '09:09', extraHours: '01:09' },

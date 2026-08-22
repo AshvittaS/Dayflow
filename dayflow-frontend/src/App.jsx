@@ -28,11 +28,11 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/employees"      element={<EmployeesPage />} />
-        <Route path="/profile"        element={<ProfilePage />} />
-        <Route path="/profile/:id"    element={<ProfilePage />} />
-        <Route path="/attendance"     element={<AttendancePage />} />
-        <Route path="/timeoff"        element={<TimeOffPage />} />
+        <Route path="/employees"   element={<EmployeesPage />} />
+        <Route path="/profile"     element={<ProfilePage />} />
+        <Route path="/profile/:id" element={<ProfilePage />} />
+        <Route path="/attendance"  element={<AttendancePage />} />
+        <Route path="/timeoff"     element={<TimeOffPage />} />
       </Route>
 
       <Route path="/"  element={<Navigate to="/employees" replace />} />
