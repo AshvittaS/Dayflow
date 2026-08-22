@@ -107,44 +107,48 @@ export default function EmployeesPage() {
       </div>
 
       {/* ── Presence Summary Metrics ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="flex items-center gap-3 rounded-xl border border-[#EAEAEC] bg-white p-3.5 shadow-subtle">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#5B4FE9]/10 text-[#5B4FE9]">
-            <Users className="h-4 w-4" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {/* Total Staff */}
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#5B4FE9]/10 text-[#5B4FE9]">
+            <Users className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">Total Staff</p>
-            <p className="text-lg font-bold text-[#1A1A1F]">{totalEmployees}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 rounded-xl border border-[#EAEAEC] bg-white p-3.5 shadow-subtle">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#ECFDF5] text-[#059669]">
-            <CheckCircle2 className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">Present</p>
-            <p className="text-lg font-bold text-[#059669]">{presentCount}</p>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Total Staff</p>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#1A1A1F]">{totalEmployees}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-xl border border-[#EAEAEC] bg-white p-3.5 shadow-subtle">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB]">
-            <CalendarOff className="h-4 w-4" />
+        {/* Present */}
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ECFDF5] text-[#059669]">
+            <CheckCircle2 className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">On Leave</p>
-            <p className="text-lg font-bold text-[#2563EB]">{leaveCount}</p>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Present</p>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#059669]">{presentCount}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-xl border border-[#EAEAEC] bg-white p-3.5 shadow-subtle">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FFFBEB] text-[#D97706]">
-            <Clock className="h-4 w-4" />
+        {/* On Leave */}
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#2563EB]">
+            <CalendarOff className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">Absent</p>
-            <p className="text-lg font-bold text-[#D97706]">{absentCount}</p>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">On Leave</p>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#2563EB]">{leaveCount}</p>
+          </div>
+        </div>
+
+        {/* Absent */}
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFBEB] text-[#D97706]">
+            <Clock className="h-5 w-5" />
+          </div>
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Absent</p>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#D97706]">{absentCount}</p>
           </div>
         </div>
       </div>
