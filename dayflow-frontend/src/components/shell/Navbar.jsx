@@ -13,10 +13,60 @@ import {
   CheckCheck,
   Calendar,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useNotifications } from '../../hooks/useNotifications.js'
 import AvatarMenu from './AvatarMenu.jsx'
+
+function formatRelativeTime(dateString) {
+  if (!dateString) return 'Just now'
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffSec = Math.floor((now - date) / 1000)
+
+  if (diffSec < 60) return 'Just now'
+  const diffMin = Math.floor(diffSec / 60)
+  if (diffMin < 60) return `${diffMin}m ago`
+  const diffHours = Math.floor(diffMin / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+}
+
+function getNotificationVisual(type) {
+  switch (type) {
+    case 'leave':
+      return {
+        icon: CalendarOff,
+        color: 'text-[#2563EB] bg-[#EFF6FF]'
+      }
+    case 'attendance':
+      return {
+        icon: Clock,
+        color: 'text-[#059669] bg-[#ECFDF5]'
+      }
+    case 'payroll':
+      return {
+        icon: DollarSign,
+        color: 'text-[#5B4FE9] bg-[#EEEDFC]'
+      }
+    case 'employee':
+      return {
+        icon: Users,
+        color: 'text-[#C026D3] bg-[#FDF4FF]'
+      }
+    default:
+      return {
+        icon: Sparkles,
+        color: 'text-[#5B4FE9] bg-[#EEEDFC]'
+      }
+  }
+}
 
 export default function Navbar() {
   const { user } = useAuth()
@@ -24,47 +74,9 @@ export default function Navbar() {
   const [userStatus, setUserStatus] = useState(user?.status || 'absent')
   const [searchQuery, setSearchQuery] = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
-  const [hasUnread, setHasUnread] = useState(true)
   const notifRef = useRef(null)
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Leave Request Pending',
-      desc: 'Alex Kumar submitted Casual Leave for Aug 24 - 25',
-      time: '2h ago',
-      unread: true,
-      icon: CalendarOff,
-      iconColor: 'text-[#2563EB] bg-[#EFF6FF]'
-    },
-    {
-      id: 2,
-      title: 'Workday Check-In Logged',
-      desc: 'You checked in successfully at 09:02 AM',
-      time: '5h ago',
-      unread: true,
-      icon: Clock,
-      iconColor: 'text-[#059669] bg-[#ECFDF5]'
-    },
-    {
-      id: 3,
-      title: 'Upcoming Work Anniversary',
-      desc: 'Priya Sharma marks 2 years with Dayflow tomorrow 🎉',
-      time: '1d ago',
-      unread: false,
-      icon: Calendar,
-      iconColor: 'text-[#C026D3] bg-[#FDF4FF]'
-    },
-    {
-      id: 4,
-      title: 'August Payroll Draft',
-      desc: 'Monthly salary structure draft is ready for review',
-      time: '2d ago',
-      unread: false,
-      icon: DollarSign,
-      iconColor: 'text-[#5B4FE9] bg-[#EEEDFC]'
-    }
-  ])
+  const { notifications, unreadCount, markAllAsRead, markAsRead } = useNotifications()
 
   const isAdmin = user?.role === 'admin' || user?.role === 'hr' || user?.role === 'hr_officer'
 
@@ -123,126 +135,129 @@ export default function Navbar() {
   }, [notifOpen])
 
   function handleToggleNotif() {
-    setNotifOpen((prev) => {
-      const next = !prev
-      if (next) {
-        setHasUnread(false)
-      }
-      return next
-    })
+    setNotifOpen((prev) => !prev)
   }
 
-  function handleMarkAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-    setHasUnread(false)
+  function handleNotificationClick(n) {
+    if (!n.isRead) {
+      markAsRead(n.id)
+    }
+    setNotifOpen(false)
+    if (n.link) {
+      navigate(n.link)
+    }
   }
 
   function handleSearchChange(e) {
     const val = e.target.value
     setSearchQuery(val)
-    window.dispatchEvent(new CustomEvent('dayflow:search', { detail: { query: val } }))
+    window.dispatchEvent(
+      new CustomEvent('dayflow:search', {
+        detail: { query: val }
+      })
+    )
   }
 
   function handleClearSearch() {
     setSearchQuery('')
-    window.dispatchEvent(new CustomEvent('dayflow:search', { detail: { query: '' } }))
+    window.dispatchEvent(
+      new CustomEvent('dayflow:search', {
+        detail: { query: '' }
+      })
+    )
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#EAEAEC] bg-white/95 px-4 sm:px-6 lg:px-8 backdrop-blur-md shadow-[0_1px_2px_0_rgba(0,0,0,0.02)]">
-      {/* ── Left: Brand Logo & Top Horizontal Navigation Tabs ── */}
-      <div className="flex items-center gap-6 lg:gap-8">
-        {/* Brand Wordmark */}
-        <button
-          onClick={() => navigate('/employees')}
-          className="group flex items-center gap-2.5 outline-none"
+    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#EAEAEC] bg-white/95 px-4 backdrop-blur-md transition-colors sm:px-8">
+      {/* ── Left: Brand identity + Main Navigation ── */}
+      <div className="flex items-center gap-8">
+        {/* Brand logo */}
+        <NavLink
+          to="/employees"
+          className="flex items-center gap-2.5 outline-none transition-transform hover:scale-[1.02]"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5B4FE9] text-white shadow-[0_2px_8px_rgba(91,79,233,0.35)] transition group-hover:scale-105">
-            <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-white" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#5B4FE9] text-white shadow-[0_2px_8px_rgba(91,79,233,0.35)]">
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-extrabold tracking-tight text-[#1A1A1F]">
+          <div className="flex flex-col">
+            <span className="font-display text-base font-extrabold tracking-tight text-[#1A1A1F]">
               Day<span className="text-[#5B4FE9]">flow</span>
             </span>
-            <span className="hidden text-[10px] font-bold uppercase tracking-wider text-[#9AA4AD] sm:inline-block">
-              HRMS
+            <span className="font-mono text-[9px] uppercase tracking-wider text-[#9AA4AD]">
+              HR Operating System
             </span>
           </div>
-        </button>
+        </NavLink>
 
-        {/* Horizontal Navigation Items (Light Theme) */}
-        <nav className="flex items-center gap-1" aria-label="Main Horizontal Navigation">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold tracking-wide transition-all duration-150 ${
-                    isActive
-                      ? 'bg-[#5B4FE9]/10 text-[#5B4FE9]'
-                      : 'text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]'
-                  }`
-                }
-              >
-                <Icon className="h-4 w-4 shrink-0" strokeWidth={2.2} />
-                <span>{item.label}</span>
-              </NavLink>
-            )
-          })}
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all duration-150 ${
+                  isActive
+                    ? 'bg-[#EEEDFC] text-[#5B4FE9] shadow-sm'
+                    : 'text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]'
+                }`
+              }
+            >
+              <Icon className="h-4 w-4" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
       </div>
 
       {/* ── Right: Consolidated Search Bar + Documentation + Notifications Dropdown + Avatar ── */}
       <div className="flex items-center gap-3">
-        {/* Command Search Bar */}
-        <div className="relative hidden md:block w-72 lg:w-80">
-          <Search className="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#9AA4AD]" />
+        {/* Consolidated Top Command / Search Bar */}
+        <div className="relative w-48 sm:w-64 md:w-72">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9AA4AD]" />
           <input
-            id="command-search"
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
-            placeholder="Search employees by name or ID…"
-            className="w-full rounded-xl border border-[#EAEAEC] bg-[#F8F9FA] py-1.5 pl-9 pr-9 text-xs font-medium text-[#1A1A1F] placeholder-[#9AA4AD] outline-none transition focus:border-[#5B4FE9] focus:bg-white focus:ring-2 focus:ring-[#5B4FE9]/10"
+            placeholder="Search directory (⌘K)..."
+            className="h-9 w-full rounded-xl border border-[#EAEAEC] bg-[#F8F9FA] pl-9 pr-8 text-xs font-semibold text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all focus:border-[#5B4FE9] focus:bg-white focus:ring-2 focus:ring-[#5B4FE9]/10"
           />
           {searchQuery ? (
             <button
               onClick={handleClearSearch}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9AA4AD] hover:text-[#1A1A1F]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-[#9AA4AD] hover:bg-[#EAEAEC] hover:text-[#1A1A1F]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           ) : (
-            <div className="flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-0.5 rounded border border-[#EAEAEC] bg-white px-1 py-0.2 text-[9px] font-bold text-[#9AA4AD]">
-              <Command className="h-2 w-2" />
-              <span>K</span>
+            <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-0.5 rounded border border-[#EAEAEC] bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#9AA4AD]">
+              <Command className="h-2.5 w-2.5" /> K
             </div>
           )}
         </div>
 
-        {/* Documentation link */}
+        {/* Documentation / Help shortcut */}
         <a
-          href="https://github.com/AshvittaS/Dayflow"
+          href="https://github.com/AshvittaS/Dayflow#readme"
           target="_blank"
           rel="noopener noreferrer"
-          title="Help & Documentation"
+          title="Open Documentation"
           className="hidden sm:flex h-9 w-9 items-center justify-center rounded-xl text-[#6B6B76] transition hover:bg-[#F4F4F6] hover:text-[#1A1A1F]"
         >
           <HelpCircle className="h-4 w-4" />
         </a>
 
-        {/* Functional Notification Bell with Dropdown */}
+        {/* Functional Notification Bell with Dynamic Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={handleToggleNotif}
@@ -254,59 +269,89 @@ export default function Navbar() {
             }`}
           >
             <Bell className="h-4 w-4" />
-            {hasUnread && (
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#5B4FE9] ring-2 ring-white animate-pulse" />
+            {unreadCount > 0 && (
+              <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#5B4FE9] px-1 text-[9px] font-bold text-white ring-2 ring-white animate-pulse">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
             )}
           </button>
 
-          {/* Dropdown Panel */}
+          {/* Dynamic Dropdown Panel */}
           {notifOpen && (
             <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-[#EAEAEC] bg-white p-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
               <div className="flex items-center justify-between px-2 pb-2.5 border-b border-[#F1F1F4]">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-extrabold text-[#1A1A1F]">Notifications</span>
-                  <span className="rounded-full bg-[#5B4FE9]/10 px-2 py-0.5 text-[10px] font-bold text-[#5B4FE9]">
-                    {notifications.filter((n) => n.unread).length} new
-                  </span>
+                  {unreadCount > 0 ? (
+                    <span className="rounded-full bg-[#5B4FE9]/10 px-2 py-0.5 text-[10px] font-bold text-[#5B4FE9]">
+                      {unreadCount} unread
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      All caught up
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={handleMarkAllRead}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5B4FE9] hover:underline"
-                >
-                  <CheckCheck className="h-3 w-3" />
-                  Mark all as read
-                </button>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#5B4FE9] hover:underline cursor-pointer"
+                  >
+                    <CheckCheck className="h-3 w-3" />
+                    Mark all read
+                  </button>
+                )}
               </div>
 
-              {/* Notification Items List */}
+              {/* Dynamic Notification Items List */}
               <div className="mt-2 space-y-1 max-h-80 overflow-y-auto">
-                {notifications.map((n) => {
-                  const Icon = n.icon
-                  return (
-                    <div
-                      key={n.id}
-                      className={`flex items-start gap-3 rounded-xl p-2.5 transition ${
-                        n.unread ? 'bg-[#F8F9FA]' : 'hover:bg-[#F8F9FA]/60'
-                      }`}
-                    >
+                {notifications.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-[#9AA4AD]">
+                    <Bell className="mx-auto h-6 w-6 text-[#D5D5DC] mb-1.5" />
+                    <p className="font-semibold text-[#1A1A1F]">No notifications yet</p>
+                    <p className="text-[11px] mt-0.5">Alerts for leave requests and check-ins appear here.</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => {
+                    const visual = getNotificationVisual(n.type)
+                    const Icon = visual.icon
+                    const isUnread = !n.isRead
+
+                    return (
                       <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${n.iconColor}`}
+                        key={n.id}
+                        onClick={() => handleNotificationClick(n)}
+                        className={`group flex items-start gap-3 rounded-xl p-2.5 transition cursor-pointer ${
+                          isUnread
+                            ? 'bg-[#F8F9FA] hover:bg-[#EEEDFC]/40'
+                            : 'hover:bg-[#F8F9FA]'
+                        }`}
                       >
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-[#1A1A1F] truncate">{n.title}</p>
-                          <span className="text-[10px] text-[#9AA4AD] shrink-0">{n.time}</span>
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visual.color}`}
+                        >
+                          <Icon className="h-4 w-4" />
                         </div>
-                        <p className="text-[11px] text-[#6B6B76] leading-tight mt-0.5">{n.desc}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-bold text-[#1A1A1F] truncate group-hover:text-[#5B4FE9] transition-colors">
+                              {n.title}
+                            </p>
+                            <span className="text-[10px] text-[#9AA4AD] shrink-0 font-mono ml-2">
+                              {formatRelativeTime(n.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#6B6B76] leading-tight mt-0.5 line-clamp-2">
+                            {n.message}
+                          </p>
+                        </div>
+                        {isUnread && (
+                          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#5B4FE9]" />
+                        )}
                       </div>
-                      {n.unread && (
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#5B4FE9]" />
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })
+                )}
               </div>
             </div>
           )}

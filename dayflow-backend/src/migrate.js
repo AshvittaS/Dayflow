@@ -8,7 +8,21 @@ async function migrate() {
       'ALTER TABLE employees ADD COLUMN location VARCHAR(100) NULL DEFAULT "Bengaluru" AFTER title',
       'ALTER TABLE employees ADD COLUMN date_of_birth DATE NULL AFTER about',
       'ALTER TABLE employees ADD COLUMN gender VARCHAR(50) NULL AFTER date_of_birth',
-      'ALTER TABLE employees ADD COLUMN address TEXT NULL AFTER gender'
+      'ALTER TABLE employees ADD COLUMN address TEXT NULL AFTER gender',
+      `CREATE TABLE IF NOT EXISTS notifications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        company_id INT NOT NULL,
+        user_id INT NULL,
+        role_target VARCHAR(20) NULL,
+        type VARCHAR(50) NOT NULL DEFAULT 'system',
+        title VARCHAR(150) NOT NULL,
+        message TEXT NOT NULL,
+        link VARCHAR(255) NULL,
+        is_read TINYINT(1) NOT NULL DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )`
     ]
     for (const sql of cols) {
       try {

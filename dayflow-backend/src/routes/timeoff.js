@@ -6,6 +6,7 @@ import fs from 'fs'
 import pool from '../db.js'
 import auth from '../middleware/auth.js'
 import requireRole from '../middleware/requireRole.js'
+import { createNotification } from './notifications.js'
 
 const router = Router()
 
@@ -180,6 +181,18 @@ router.post(
          VALUES (?, ?, ?, ?, ?, ?)`,
         [req.user.employeeId, lt.id, startDate, endDate, daysRequested, attachmentUrl]
       )
+
+      // Notify company admins
+      const [[empRow]] = await pool.query('SELECT name FROM employees WHERE id = ?', [req.user.employeeId])
+      await createNotification(pool, {
+        companyId: req.user.companyId,
+        roleTarget: 'admin',
+        type: 'leave',
+        title: 'New Leave Request Submitted',
+        message: `${empRow?.name || 'An employee'} requested ${daysRequested} day(s) of ${type} (${startDate} to ${endDate}).`,
+        link: '/timeoff'
+      })
+
       res.status(201).json({ message: 'Request submitted.', id: result.insertId })
     } catch (err) {
       console.error('POST /timeoff:', err)
@@ -209,9 +222,10 @@ router.put(
       await conn.beginTransaction()
 
       const [[tor]] = await conn.query(
-        `SELECT tor.*, lt.name AS leaveType
+        `SELECT tor.*, lt.name AS leaveType, e.user_id AS empUserId, e.name AS empName
          FROM time_off_requests tor
          JOIN leave_types lt ON lt.id = tor.leave_type_id
+         JOIN employees e ON e.id = tor.employee_id
          WHERE tor.id = ?`,
         [requestId]
       )
@@ -245,6 +259,18 @@ router.put(
             [tor.employee_id]
           )
         }
+      }
+
+      // Notify the employee
+      if (tor.empUserId) {
+        await createNotification(conn, {
+          companyId: req.user.companyId,
+          userId: tor.empUserId,
+          type: 'leave',
+          title: `Leave Request ${status}`,
+          message: `Your ${tor.leaveType} request for ${tor.days_requested} day(s) was ${status.toLowerCase()} by HR.`,
+          link: '/timeoff'
+        })
       }
 
       await conn.commit()

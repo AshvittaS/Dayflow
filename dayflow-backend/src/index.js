@@ -11,6 +11,7 @@ import timeoffRoutes     from './routes/timeoff.js'
 import allocationRoutes  from './routes/allocations.js'
 import salaryRoutes      from './routes/salary.js'
 import analyticsRoutes   from './routes/analytics.js'
+import notificationRoutes from './routes/notifications.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -44,6 +45,7 @@ app.use('/api/timeoff',             timeoffRoutes)
 app.use('/api/timeoff/allocations', allocationRoutes)
 app.use('/api/salary',              salaryRoutes)
 app.use('/api/analytics',           analyticsRoutes)
+app.use('/api/notifications',       notificationRoutes)
 
 // Direct routes (backwards compatibility)
 app.use('/auth',                    authRoutes)
@@ -53,6 +55,7 @@ app.use('/timeoff',                 timeoffRoutes)
 app.use('/timeoff/allocations',     allocationRoutes)
 app.use('/salary',                  salaryRoutes)
 app.use('/analytics',               analyticsRoutes)
+app.use('/notifications',           notificationRoutes)
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
