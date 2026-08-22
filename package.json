@@ -1,0 +1,12 @@
+{
+  "name": "dayflow-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dayflow HRMS monorepo root runner",
+  "scripts": {
+    "dev": "npm --prefix dayflow-frontend run dev",
+    "dev:frontend": "npm --prefix dayflow-frontend run dev",
+    "dev:backend": "npm --prefix dayflow-backend run dev",
+    "build": "npm --prefix dayflow-frontend run build"
+  }
+}
