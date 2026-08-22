@@ -1,4 +1,4 @@
-# Dayflow — 8-Hour Build Plan (4 people, 4 branches)
+# Dayflow —(4 people, 4 branches)
 
 Assumption stated up front: the wireframe/PRD don't name a stack, so this
 plan assumes **React (Vite) + Tailwind** frontend, **Node/Express +

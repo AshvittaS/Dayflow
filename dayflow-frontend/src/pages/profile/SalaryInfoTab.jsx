@@ -1,30 +1,45 @@
-import { salaryStructure } from '../../data/mockData.js'
+import { useSalary } from '../../hooks/useSalary.js'
 
-// § 5 — visible ONLY when the viewer is admin (enforced by ProfilePage,
-// not here — don't remove that guard upstream).
-// Amounts / percentages are illustrative; confirm real values per SKILL.md §9.
-export default function SalaryInfoTab() {
-  const s = salaryStructure
+// § 5 — visible ONLY when the viewer is admin (enforced by ProfilePage).
+export default function SalaryInfoTab({ employeeId }) {
+  const { salary: s, loading, error } = useSalary(employeeId)
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-12">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+    </div>
+  )
+
+  if (error) return (
+    <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+      Failed to load salary structure: {error}
+    </div>
+  )
+
+  if (!s) return (
+    <div className="rounded-xl border border-dashed border-base-border py-16 text-center">
+      <p className="text-sm text-slate-400">No salary structure set for this employee yet.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
-      {/* ── Wage header ── */}
+      {/* Wage header */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <HeaderField label="Wage Type"           value={s.wageType} />
         <HeaderField label="Salary Type"         value={s.salaryType} />
-        <HeaderField label="Month Wage"          value={`₹${s.monthWage.toLocaleString('en-IN')}`} accent />
-        <HeaderField label="Yearly Wage"         value={`₹${s.yearWage.toLocaleString('en-IN')}`} accent />
+        <HeaderField label="Month Wage"          value={`₹${Number(s.monthWage).toLocaleString('en-IN')}`} accent />
+        <HeaderField label="Yearly Wage"         value={`₹${Number(s.yearWage).toLocaleString('en-IN')}`} accent />
         <HeaderField label="Working Days / Week" value={`${s.workingDaysPerWeek} days`} />
         <HeaderField label="Break Time"          value={`${s.breakTimeHrs} hr`} />
       </div>
 
-      {/* ── Salary Components ── */}
+      {/* Salary Components */}
       <div className="overflow-hidden rounded-xl border border-base-border">
         <div className="border-b border-base-border bg-base-panel px-5 py-3">
           <h3 className="text-sm font-semibold text-white">Salary Components</h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            Each amount is derived from the % of the defined wage. Confirm exact
-            percentages before going live (SKILL.md §5 / §9).
+            Each amount is derived from % of month wage. Confirm exact percentages before go-live (SKILL.md §5 / §9).
           </p>
         </div>
         <table className="w-full text-sm">
@@ -36,18 +51,11 @@ export default function SalaryInfoTab() {
             </tr>
           </thead>
           <tbody>
-            {s.components.map((c, i) => (
-              <tr
-                key={c.label}
-                className={`border-t border-base-border ${
-                  i % 2 === 0 ? 'bg-base-card' : 'bg-base-panel'
-                }`}
-              >
+            {s.components?.map((c, i) => (
+              <tr key={c.label} className={`border-t border-base-border ${i % 2 === 0 ? 'bg-base-card' : 'bg-base-panel'}`}>
                 <td className="px-5 py-3 font-medium text-white">{c.label}</td>
                 <td className="px-5 py-3 text-right text-slate-400">{c.percent}%</td>
-                <td className="px-5 py-3 text-right font-semibold text-white">
-                  ₹{c.amount.toLocaleString('en-IN')}
-                </td>
+                <td className="px-5 py-3 text-right font-semibold text-white">₹{Number(c.amount).toLocaleString('en-IN')}</td>
               </tr>
             ))}
           </tbody>
@@ -56,35 +64,29 @@ export default function SalaryInfoTab() {
               <td className="px-5 py-3 font-semibold text-white">Total</td>
               <td />
               <td className="px-5 py-3 text-right font-bold text-accent">
-                ₹{s.components.reduce((sum, c) => sum + c.amount, 0).toLocaleString('en-IN')}
+                ₹{s.components?.reduce((sum, c) => sum + Number(c.amount), 0).toLocaleString('en-IN')}
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      {/* ── PF & Deductions ── */}
+      {/* PF & Deductions */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-base-border bg-base-card p-5">
           <h3 className="mb-3 text-sm font-semibold text-white">PF Contribution</h3>
           <dl className="space-y-2.5 text-sm">
-            <Row label="Employee PF" value={`${s.pf.employeePercent}%`} />
-            <Row label="Employer PF" value={`${s.pf.employerPercent}%`} />
+            <Row label="Employee PF" value={`${s.pfEmployeePct}%`} />
+            <Row label="Employer PF" value={`${s.pfEmployerPct}%`} />
           </dl>
-          <p className="mt-3 text-xs text-slate-600">
-            {/* PF % not confirmed — see SKILL.md §9 */}
-            % values are placeholders pending team confirmation.
-          </p>
+          <p className="mt-3 text-xs text-slate-600">% values pending team confirmation (SKILL.md §9).</p>
         </div>
         <div className="rounded-xl border border-base-border bg-base-card p-5">
           <h3 className="mb-3 text-sm font-semibold text-white">Tax Deductions</h3>
           <dl className="space-y-2.5 text-sm">
             <Row label="Professional Tax" value={`₹${s.professionalTax}`} />
           </dl>
-          <p className="mt-3 text-xs text-slate-600">
-            {/* Professional Tax ₹ not confirmed — see SKILL.md §9 */}
-            ₹ value is a placeholder pending team confirmation.
-          </p>
+          <p className="mt-3 text-xs text-slate-600">₹ value pending team confirmation (SKILL.md §9).</p>
         </div>
       </div>
     </div>
