@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Plus, ChevronLeft, ChevronRight, Calendar, Check, X, Clock } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, Calendar, Check, X, Clock, Eye } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useTimeOff, useAllocations, reviewRequest } from '../../hooks/useTimeOff.js'
 import { timeOffBalances } from '../../data/mockData.js'
 import TimeOffRequestModal from './TimeOffRequestModal.jsx'
+import LeaveDetailsModal from '../../components/modals/LeaveDetailsModal.jsx'
 
 const STATUS_STYLE = {
   Pending:  'bg-amber-50 text-amber-700 border border-amber-200',
@@ -35,8 +36,9 @@ function calendarHighlight(dateStr, requests) {
 
 export default function TimeOffPage() {
   const { user } = useAuth()
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = user?.role === 'admin' || user?.role === 'hr' || user?.role === 'hr_officer'
   const [showModal, setShowModal] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState(null)
   const [adminTab, setAdminTab] = useState('Time Off')
 
   const today = new Date()
@@ -266,26 +268,13 @@ export default function TimeOffPage() {
                         </span>
                       </td>
                       <td className="px-6 py-3.5">
-                        {r.status === 'Pending' ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleReview(r.id, 'Approved')}
-                              className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
-                            >
-                              <Check className="h-3 w-3" />
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => handleReview(r.id, 'Rejected')}
-                              className="inline-flex items-center gap-1 rounded-lg bg-rose-50 border border-rose-200 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100"
-                            >
-                              <X className="h-3 w-3" />
-                              Reject
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-[#92929D]">—</span>
-                        )}
+                        <button
+                          onClick={() => setSelectedRequest(r)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#EAEAEC] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A1F] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] hover:border-[#5B4FE9]/40 shadow-subtle transition"
+                        >
+                          <Eye className="h-3.5 w-3.5 text-[#5B4FE9]" />
+                          <span>{r.status === 'Pending' ? 'Evaluate Request' : 'View Details'}</span>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -332,6 +321,17 @@ export default function TimeOffPage() {
             </table>
           )}
         </div>
+      )}
+
+      {/* Leave Evaluation Modal */}
+      {selectedRequest && (
+        <LeaveDetailsModal
+          request={selectedRequest}
+          onReview={async (id, status) => {
+            await handleReview(id, status)
+          }}
+          onClose={() => setSelectedRequest(null)}
+        />
       )}
     </div>
   )

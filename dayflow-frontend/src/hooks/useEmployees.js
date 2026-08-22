@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api.js'
 
 /**
@@ -10,7 +10,7 @@ export function useEmployees() {
   const [loading, setLoading]     = useState(true)
   const [error, setError]         = useState(null)
 
-  async function fetch_() {
+  const fetch_ = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -21,9 +21,9 @@ export function useEmployees() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { fetch_() }, [])
+  useEffect(() => { fetch_() }, [fetch_])
   return { employees, loading, error, refetch: fetch_ }
 }
 
@@ -35,14 +35,44 @@ export function useEmployee(id) {
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(null)
 
-  useEffect(() => {
+  const fetchEmp = useCallback(async () => {
     if (!id) { setLoading(false); return }
     setLoading(true)
-    api.get(`/employees/${id}`)
-      .then(data => setEmployee(data))
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
+    setError(null)
+    try {
+      const data = await api.get(`/employees/${id}`)
+      setEmployee(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }, [id])
 
-  return { employee, loading, error }
+  useEffect(() => {
+    fetchEmp()
+  }, [fetchEmp])
+
+  return { employee, loading, error, refetch: fetchEmp }
+}
+
+/**
+ * Admin action: Create a new employee
+ */
+export async function createEmployee(data) {
+  return await api.post('/employees', data)
+}
+
+/**
+ * Admin / Self action: Update employee details
+ */
+export async function updateEmployee(id, data) {
+  return await api.put(`/employees/${id}`, data)
+}
+
+/**
+ * Admin action: Delete employee account
+ */
+export async function deleteEmployee(id) {
+  return await api.delete(`/employees/${id}`)
 }
