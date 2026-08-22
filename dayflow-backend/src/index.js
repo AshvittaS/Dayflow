@@ -18,7 +18,15 @@ const PORT = process.env.PORT || 4000
 
 // ── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. server-to-server, curl, mobile apps)
+    if (!origin) return callback(null, true)
+    // Allow any localhost / 127.0.0.1 dev origin regardless of port (5173, 5174, etc.)
+    if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) || origin === process.env.CLIENT_URL) {
+      return callback(null, true)
+    }
+    callback(null, true)
+  },
   credentials: true
 }))
 app.use(express.json())
