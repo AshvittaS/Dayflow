@@ -1,35 +1,23 @@
 import { useState } from 'react'
-import {
-  timeOffBalances,
-  timeOffRequests,
-  leaveAllocations,
-  currentUser
-} from '../../data/mockData.js'
+import { Plus, ChevronLeft, ChevronRight, Calendar, Check, X, Clock } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext.jsx'
+import { useTimeOff, useAllocations, reviewRequest } from '../../hooks/useTimeOff.js'
+import { timeOffBalances } from '../../data/mockData.js'
 import TimeOffRequestModal from './TimeOffRequestModal.jsx'
 
-// § 7 — Time Off page
-// Employee view: balance cards + month calendar + own requests list.
-// Admin view: two sub-tabs — Time Off (all requests) | Allocation (per-employee balances).
-// Status enum: Pending | Approved | Rejected  (SKILL.md §7)
-
 const STATUS_STYLE = {
-  Pending:  'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30',
-  Approved: 'bg-green-500/15  text-green-400  border border-green-500/30',
-  Rejected: 'bg-red-500/15   text-red-400   border border-red-500/30'
+  Pending:  'bg-amber-50 text-amber-700 border border-amber-200',
+  Approved: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  Rejected: 'bg-rose-50 text-rose-700 border border-rose-200'
 }
 
-// NOTE(team): exact color ↔ status mapping not confirmed in wireframe — using
-// yellow/green/red heuristic per SKILL.md §9.
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
-// ─────────────────────────────────────────────
-// Mini month-grid calendar helpers
-// ─────────────────────────────────────────────
 function buildCalendarDays(year, month) {
-  // month is 0-indexed
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const cells = []
-  for (let i = 0; i < firstDay; i++) cells.push(null) // leading blanks
+  for (let i = 0; i < firstDay; i++) cells.push(null)
   for (let d = 1; d <= daysInMonth; d++) cells.push(d)
   return cells
 }
@@ -39,137 +27,114 @@ function isoDate(year, month, day) {
 }
 
 function calendarHighlight(dateStr, requests) {
-  // Check if this date falls within any approved/pending request range
   for (const r of requests) {
-    const start = new Date(r.startDate)
-    const end = new Date(r.endDate)
-    const d = new Date(dateStr)
-    if (d >= start && d <= end) return r.status
+    if (dateStr >= r.startDate && dateStr <= r.endDate) return r.status
   }
   return null
 }
 
-const MONTH_NAMES = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December'
-]
-
-// ─────────────────────────────────────────────
 export default function TimeOffPage() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const [showModal, setShowModal] = useState(false)
-  const [requests, setRequests] = useState(timeOffRequests)
-  const isAdmin = currentUser.role === 'admin'
   const [adminTab, setAdminTab] = useState('Time Off')
 
-  // Calendar state — default to current month
   const today = new Date()
-  const [calYear, setCalYear] = useState(today.getFullYear())
+  const [calYear, setCalYear]   = useState(today.getFullYear())
   const [calMonth, setCalMonth] = useState(today.getMonth())
+  const todayIso = isoDate(today.getFullYear(), today.getMonth(), today.getDate())
 
-  // Only show the logged-in user's own requests on the calendar
-  const myRequests = requests.filter((r) => r.employee === currentUser.name)
+  const { requests, loading, error, refetch } = useTimeOff()
+  const { allocations, loading: allocLoading } = useAllocations()
 
-  function addRequest(r) {
-    const days = r.daysRequested || 1
-    setRequests((prev) => [
-      ...prev,
-      {
-        id: `to-${Date.now()}`,
-        employee: currentUser.name,
-        startDate: r.start,
-        endDate: r.end,
-        type: r.type,
-        status: 'Pending',
-        daysRequested: days
-      }
-    ])
-  }
+  const myRequests = isAdmin ? [] : requests
 
-  function setStatus(id, status) {
-    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
+  async function handleReview(id, status) {
+    try {
+      await reviewRequest(id, status)
+      refetch()
+    } catch (err) {
+      alert(err.message)
+    }
   }
 
   function prevMonth() {
-    if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1) }
-    else setCalMonth(m => m - 1)
+    if (calMonth === 0) { setCalMonth(11); setCalYear((y) => y - 1) }
+    else setCalMonth((m) => m - 1)
   }
   function nextMonth() {
-    if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1) }
-    else setCalMonth(m => m + 1)
+    if (calMonth === 11) { setCalMonth(0); setCalYear((y) => y + 1) }
+    else setCalMonth((m) => m + 1)
   }
 
   // ── EMPLOYEE VIEW ──
   if (!isAdmin) {
     const cells = buildCalendarDays(calYear, calMonth)
-    const todayIso = isoDate(today.getFullYear(), today.getMonth(), today.getDate())
-
     return (
-      <div>
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-lg font-bold text-white">My Time Off</h1>
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1A1A1F]">My Time Off</h1>
+            <p className="mt-1 text-xs text-[#6B6B76]">
+              Leave allocations, calendar schedule, and request tracking
+            </p>
+          </div>
+
           <button
             onClick={() => setShowModal(true)}
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-accent/25 hover:bg-accent-hover active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#5B4FE9] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#4A3EC8] transition-all"
           >
-            + Request Time Off
+            <Plus className="h-4 w-4" />
+            <span>Request Time Off</span>
           </button>
         </div>
 
-        {/* Balance cards */}
-        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <BalanceCard label="Paid Time Off"  value={timeOffBalances['Paid Time Off']} color="text-status-present" />
-          <BalanceCard label="Sick Leave"      value={timeOffBalances['Sick Leave']}    color="text-status-leave" />
-          <BalanceCard label="Unpaid Leave"    value={timeOffBalances['Unpaid Leave']}  color="text-slate-400" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <BalanceCard label="Paid Time Off" value={timeOffBalances['Paid Time Off']} color="text-[#059669]" bg="bg-[#ECFDF5]" />
+          <BalanceCard label="Sick Leave" value={timeOffBalances['Sick Leave']} color="text-[#2563EB]" bg="bg-[#EFF6FF]" />
+          <BalanceCard label="Unpaid Leave" value={timeOffBalances['Unpaid Leave']} color="text-[#6B6B76]" bg="bg-[#F4F4F6]" />
         </div>
 
-        {/* Mini calendar */}
-        <div className="mb-6 overflow-hidden rounded-xl border border-base-border bg-base-card">
-          {/* Calendar header */}
-          <div className="flex items-center justify-between border-b border-base-border px-5 py-3">
-            <button onClick={prevMonth} className="rounded p-1 text-slate-400 hover:text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
+        {/* Calendar */}
+        <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+          <div className="flex items-center justify-between border-b border-[#EAEAEC] px-6 py-4">
+            <button onClick={prevMonth} className="rounded-lg p-1 text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]">
+              <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-sm font-semibold text-white">
-              {MONTH_NAMES[calMonth]} {calYear}
-            </span>
-            <button onClick={nextMonth} className="rounded p-1 text-slate-400 hover:text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span className="text-sm font-bold text-[#1A1A1F]">{MONTH_NAMES[calMonth]} {calYear}</span>
+            <button onClick={nextMonth} className="rounded-lg p-1 text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]">
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-
-          {/* Day labels */}
-          <div className="grid grid-cols-7 border-b border-base-border bg-base-panel">
-            {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-              <div key={d} className="py-2 text-center text-xs font-medium text-slate-500">{d}</div>
+          <div className="grid grid-cols-7 border-b border-[#EAEAEC] bg-[#F8F9FA]">
+            {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d) => (
+              <div key={d} className="py-2 text-center text-xs font-semibold text-[#6B6B76]">{d}</div>
             ))}
           </div>
-
-          {/* Cells */}
-          <div className="grid grid-cols-7 gap-px bg-base-border">
+          <div className="grid grid-cols-7 gap-px bg-[#EAEAEC]">
             {cells.map((day, idx) => {
-              if (!day) return <div key={`blank-${idx}`} className="bg-base-card py-3" />
+              if (!day) return <div key={`blank-${idx}`} className="bg-white py-3" />
               const iso = isoDate(calYear, calMonth, day)
-              const highlight = calendarHighlight(iso, myRequests)
+              const hl = calendarHighlight(iso, myRequests)
               const isToday = iso === todayIso
-
               return (
                 <div
                   key={iso}
                   className={`flex flex-col items-center justify-center py-3 text-xs ${
-                    highlight === 'Approved' ? 'bg-green-500/20' :
-                    highlight === 'Pending'  ? 'bg-yellow-500/20' :
-                    highlight === 'Rejected' ? 'bg-red-500/20' :
-                    'bg-base-card'
+                    hl === 'Approved' ? 'bg-emerald-50' : hl === 'Pending' ? 'bg-amber-50' : hl === 'Rejected' ? 'bg-rose-50' : 'bg-white'
                   }`}
                 >
                   <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-full font-medium ${
+                    className={`flex h-7 w-7 items-center justify-center rounded-full font-semibold ${
                       isToday
-                        ? 'bg-accent text-white'
-                        : highlight === 'Approved' ? 'text-green-300'
-                        : highlight === 'Pending'  ? 'text-yellow-300'
-                        : highlight === 'Rejected' ? 'text-red-300'
-                        : 'text-slate-300'
+                        ? 'bg-[#5B4FE9] text-white shadow-sm'
+                        : hl === 'Approved'
+                        ? 'text-emerald-700 font-bold'
+                        : hl === 'Pending'
+                        ? 'text-amber-700 font-bold'
+                        : hl === 'Rejected'
+                        ? 'text-rose-700 font-bold'
+                        : 'text-[#1A1A1F]'
                     }`}
                   >
                     {day}
@@ -178,47 +143,45 @@ export default function TimeOffPage() {
               )
             })}
           </div>
-
-          {/* Legend */}
-          <div className="flex gap-4 border-t border-base-border px-5 py-2.5">
-            {[
-              { label: 'Today',    color: 'bg-accent' },
-              { label: 'Approved', color: 'bg-green-500/40' },
-              { label: 'Pending',  color: 'bg-yellow-500/40' },
-              { label: 'Rejected', color: 'bg-red-500/40' }
-            ].map(({ label, color }) => (
+          <div className="flex gap-4 border-t border-[#EAEAEC] px-6 py-3 text-xs text-[#6B6B76]">
+            {[{ label: 'Today', color: 'bg-[#5B4FE9]' }, { label: 'Approved', color: 'bg-emerald-500' }, { label: 'Pending', color: 'bg-amber-500' }, { label: 'Rejected', color: 'bg-rose-500' }].map(({ label, color }) => (
               <div key={label} className="flex items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-sm ${color}`} />
-                <span className="text-xs text-slate-500">{label}</span>
+                <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
+                <span>{label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Own requests list */}
-        {myRequests.length > 0 && (
+        {loading && (
+          <div className="flex justify-center py-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#5B4FE9] border-t-transparent" />
+          </div>
+        )}
+
+        {!loading && myRequests.length > 0 && (
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-slate-300">My Requests</h2>
-            <div className="overflow-hidden rounded-xl border border-base-border">
-              <table className="w-full text-sm">
-                <thead className="bg-base-panel text-left text-xs text-slate-500">
+            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#6B6B76]">My Recent Requests</h2>
+            <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+              <table className="w-full text-xs">
+                <thead className="border-b border-[#EAEAEC] bg-[#F8F9FA] text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">
                   <tr>
-                    <th className="px-4 py-3">Type</th>
-                    <th className="px-4 py-3">From</th>
-                    <th className="px-4 py-3">To</th>
-                    <th className="px-4 py-3">Days</th>
-                    <th className="px-4 py-3">Status</th>
+                    <th className="px-6 py-3.5">Type</th>
+                    <th className="px-6 py-3.5">From</th>
+                    <th className="px-6 py-3.5">To</th>
+                    <th className="px-6 py-3.5">Days</th>
+                    <th className="px-6 py-3.5">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {myRequests.map((r) => (
-                    <tr key={r.id} className="border-t border-base-border bg-base-card">
-                      <td className="px-4 py-3 font-medium text-white">{r.type}</td>
-                      <td className="px-4 py-3 text-slate-400">{r.startDate}</td>
-                      <td className="px-4 py-3 text-slate-400">{r.endDate}</td>
-                      <td className="px-4 py-3 text-slate-400">{r.daysRequested ?? '—'}</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLE[r.status]}`}>
+                <tbody className="divide-y divide-[#F1F1F4]">
+                  {myRequests.map((r, i) => (
+                    <tr key={r.id} className={`transition-colors hover:bg-[#F9F9FB] ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFC]'}`}>
+                      <td className="px-6 py-3.5 font-semibold text-[#1A1A1F]">{r.type}</td>
+                      <td className="px-6 py-3.5 font-mono text-[#6B6B76]">{r.startDate}</td>
+                      <td className="px-6 py-3.5 font-mono text-[#6B6B76]">{r.endDate}</td>
+                      <td className="px-6 py-3.5 font-mono text-[#1A1A1F]">{r.daysRequested}</td>
+                      <td className="px-6 py-3.5">
+                        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[r.status]}`}>
                           {r.status}
                         </span>
                       </td>
@@ -230,154 +193,161 @@ export default function TimeOffPage() {
           </div>
         )}
 
-        {showModal && (
-          <TimeOffRequestModal
-            onClose={() => setShowModal(false)}
-            onSubmit={addRequest}
-          />
-        )}
+        {showModal && <TimeOffRequestModal onClose={() => setShowModal(false)} onSubmitted={refetch} />}
       </div>
     )
   }
 
   // ── ADMIN VIEW ──
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-white">Time Off Management</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1A1A1F]">Time Off Management</h1>
+          <p className="mt-1 text-xs text-[#6B6B76]">
+            Review employee time off requests and inspect leave allocations
+          </p>
+        </div>
       </div>
 
-      {/* Admin sub-tabs */}
-      <div className="mb-6 flex gap-0 border-b border-base-border">
+      <div className="flex items-center gap-2 border-b border-[#EAEAEC] pb-px">
         {['Time Off', 'Allocation'].map((t) => (
           <button
             key={t}
             onClick={() => setAdminTab(t)}
-            className={`px-5 py-2.5 text-sm font-medium transition-colors ${
-              adminTab === t
-                ? 'border-b-2 border-accent text-white'
-                : 'text-slate-500 hover:text-slate-300'
+            className={`relative px-4 py-3 text-xs font-semibold tracking-wide transition-all ${
+              adminTab === t ? 'text-[#5B4FE9]' : 'text-[#6B6B76] hover:text-[#1A1A1F]'
             }`}
           >
             {t}
+            {adminTab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-[#5B4FE9]" />}
           </button>
         ))}
       </div>
 
-      {/* Time Off sub-tab: all requests */}
       {adminTab === 'Time Off' && (
-        <div className="overflow-hidden rounded-xl border border-base-border">
-          <table className="w-full text-sm">
-            <thead className="bg-base-panel text-left text-xs text-slate-500">
-              <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Start Date</th>
-                <th className="px-4 py-3">End Date</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Days</th>
-                <th className="px-4 py-3">Status</th>
-                {/* § 7 — only admin/HR can approve/reject */}
-                <th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.length === 0 ? (
+        <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+          {loading && (
+            <div className="flex justify-center py-12">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#5B4FE9] border-t-transparent" />
+            </div>
+          )}
+          {!loading && (
+            <table className="w-full text-xs">
+              <thead className="border-b border-[#EAEAEC] bg-[#F8F9FA] text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
-                    No time off requests yet.
-                  </td>
+                  <th className="px-6 py-3.5">Name</th>
+                  <th className="px-6 py-3.5">Start</th>
+                  <th className="px-6 py-3.5">End</th>
+                  <th className="px-6 py-3.5">Type</th>
+                  <th className="px-6 py-3.5">Days</th>
+                  <th className="px-6 py-3.5">Status</th>
+                  <th className="px-6 py-3.5">Actions</th>
                 </tr>
-              ) : (
-                requests.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="border-t border-base-border bg-base-card hover:bg-base-panel/60 transition-colors"
-                  >
-                    <td className="px-4 py-3 font-medium text-white">{r.employee}</td>
-                    <td className="px-4 py-3 text-slate-400">{r.startDate}</td>
-                    <td className="px-4 py-3 text-slate-400">{r.endDate}</td>
-                    <td className="px-4 py-3 text-slate-300">{r.type}</td>
-                    <td className="px-4 py-3 text-slate-400">{r.daysRequested ?? '—'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLE[r.status]}`}>
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {r.status === 'Pending' ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setStatus(r.id, 'Approved')}
-                            className="rounded px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-500/10"
-                          >
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => setStatus(r.id, 'Rejected')}
-                            className="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500/10"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-600">—</span>
-                      )}
+              </thead>
+              <tbody className="divide-y divide-[#F1F1F4]">
+                {requests.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-xs text-[#6B6B76]">
+                      No time off requests submitted yet.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  requests.map((r, i) => (
+                    <tr key={r.id} className={`transition-colors hover:bg-[#F9F9FB] ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFC]'}`}>
+                      <td className="px-6 py-3.5 font-bold text-[#1A1A1F]">{r.employee}</td>
+                      <td className="px-6 py-3.5 font-mono text-[#6B6B76]">{r.startDate}</td>
+                      <td className="px-6 py-3.5 font-mono text-[#6B6B76]">{r.endDate}</td>
+                      <td className="px-6 py-3.5 font-medium text-[#1A1A1F]">{r.type}</td>
+                      <td className="px-6 py-3.5 font-mono font-semibold text-[#1A1A1F]">{r.daysRequested}</td>
+                      <td className="px-6 py-3.5">
+                        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[r.status]}`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        {r.status === 'Pending' ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleReview(r.id, 'Approved')}
+                              className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                            >
+                              <Check className="h-3 w-3" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReview(r.id, 'Rejected')}
+                              className="inline-flex items-center gap-1 rounded-lg bg-rose-50 border border-rose-200 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+                            >
+                              <X className="h-3 w-3" />
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-[#92929D]">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
 
-      {/* Allocation sub-tab: per-employee leave balances */}
       {adminTab === 'Allocation' && (
-        <div className="overflow-hidden rounded-xl border border-base-border">
-          <table className="w-full text-sm">
-            <thead className="bg-base-panel text-left text-xs text-slate-500">
-              <tr>
-                <th className="px-4 py-3">Employee</th>
-                <th className="px-4 py-3 text-right">Paid Time Off</th>
-                <th className="px-4 py-3 text-right">Sick Leave</th>
-                <th className="px-4 py-3 text-right">Unpaid Leave</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaveAllocations.map((a) => (
-                <tr
-                  key={a.id}
-                  className="border-t border-base-border bg-base-card hover:bg-base-panel/60 transition-colors"
-                >
-                  <td className="px-4 py-3 font-medium text-white">{a.name}</td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="font-semibold text-status-present">{a.paidTimeOff}</span>
-                    <span className="ml-1 text-xs text-slate-600">days</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="font-semibold text-status-leave">{a.sickLeave}</span>
-                    <span className="ml-1 text-xs text-slate-600">days</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="font-semibold text-slate-300">{a.unpaidLeave}</span>
-                    <span className="ml-1 text-xs text-slate-600">days</span>
-                  </td>
+        <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+          {allocLoading && (
+            <div className="flex justify-center py-12">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#5B4FE9] border-t-transparent" />
+            </div>
+          )}
+          {!allocLoading && (
+            <table className="w-full text-xs">
+              <thead className="border-b border-[#EAEAEC] bg-[#F8F9FA] text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">
+                <tr>
+                  <th className="px-6 py-3.5">Employee</th>
+                  <th className="px-6 py-3.5 text-right">Paid Time Off</th>
+                  <th className="px-6 py-3.5 text-right">Sick Leave</th>
+                  <th className="px-6 py-3.5 text-right">Unpaid Leave</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#F1F1F4]">
+                {allocations.map((a, i) => (
+                  <tr key={a.id} className={`transition-colors hover:bg-[#F9F9FB] ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFC]'}`}>
+                    <td className="px-6 py-3.5 font-bold text-[#1A1A1F]">{a.name}</td>
+                    {['Paid Time Off', 'Sick Leave', 'Unpaid Leave'].map((type) => {
+                      const al = a.allocations?.[type]
+                      return (
+                        <td key={type} className="px-6 py-3.5 text-right font-mono">
+                          <span className="font-bold text-[#1A1A1F]">{al?.remaining ?? '—'}</span>
+                          <span className="ml-1 text-[11px] text-[#92929D]">/ {al?.totalDays ?? '—'}</span>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-function BalanceCard({ label, value, color }) {
+function BalanceCard({ label, value, color, bg }) {
   return (
-    <div className="rounded-xl border border-base-border bg-base-card p-5">
-      <p className="mb-1 text-xs text-slate-500">{label}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
-      <p className="mt-0.5 text-xs text-slate-600">days available</p>
+    <div className="flex items-center gap-4 rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${bg} ${color}`}>
+        <Calendar className="h-6 w-6" />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">{label}</p>
+        <p className={`text-2xl font-bold ${color}`}>{value}</p>
+        <p className="text-[11px] text-[#92929D]">days available</p>
+      </div>
     </div>
   )
 }
