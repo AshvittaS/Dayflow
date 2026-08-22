@@ -5,7 +5,11 @@ import {
   Clock,
   CalendarOff,
   Search,
-  Filter
+  Filter,
+  LogOut,
+  LogIn,
+  Check,
+  AlertCircle
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useEmployees } from '../../hooks/useEmployees.js'
@@ -115,7 +119,7 @@ export default function EmployeesPage() {
         </p>
       </div>
 
-      {/* ── 2. Top Matched Pair: Live Team Pulse (Left) + Workday Check-In (Right) ── */}
+      {/* ── 2. Top Matched Pair: Live Team Pulse (Left) + Status-Colored Workday Check-In (Right) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Left (8 Cols): Live Team Pulse */}
         <div className="lg:col-span-8 flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle min-h-[145px]">
@@ -183,45 +187,95 @@ export default function EmployeesPage() {
           </div>
         </div>
 
-        {/* Right (4 Cols): Workday Check-In */}
-        <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle space-y-3">
+        {/* Right (4 Cols): Status-Colored Rich Workday Check-In Card */}
+        <div
+          className={`lg:col-span-4 flex flex-col justify-between rounded-2xl border p-5 shadow-subtle space-y-3 transition-all duration-300 ${
+            checkedIn
+              ? 'bg-gradient-to-b from-[#ECFDF5]/80 via-white to-white border-[#10B981]/35 shadow-[0_4px_16px_rgba(16,185,129,0.08)]'
+              : 'bg-gradient-to-b from-[#FFFBEB]/80 via-white to-white border-[#F59E0B]/35 shadow-[0_4px_16px_rgba(245,158,11,0.08)]'
+          }`}
+        >
+          {/* Header Row */}
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#6B6B76]">
+            <span
+              className={`text-xs font-extrabold uppercase tracking-wider ${
+                checkedIn ? 'text-[#065F46]' : 'text-[#92400E]'
+              }`}
+            >
               Workday Check-In
             </span>
-            <div className="flex items-center gap-1.5">
+            <div
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold border transition-colors ${
+                checkedIn
+                  ? 'bg-[#10B981]/15 text-[#065F46] border-[#10B981]/30'
+                  : 'bg-[#F59E0B]/15 text-[#92400E] border-[#F59E0B]/30'
+              }`}
+            >
               <span
                 className={`h-2 w-2 rounded-full ${
-                  checkedIn ? 'bg-[#10B981] animate-ping' : 'bg-[#9AA4AD]'
+                  checkedIn ? 'bg-[#10B981] animate-ping' : 'bg-[#F59E0B]'
                 }`}
               />
-              <span className="text-[11px] font-bold text-[#1A1A1F]">
-                {checkedIn ? 'Active' : 'Offline'}
-              </span>
+              <span>{checkedIn ? 'Active' : 'Offline'}</span>
             </div>
           </div>
 
-          <div className="rounded-xl bg-[#F8F9FA] px-3.5 py-2 border border-[#EAEAEC]">
-            <p className="text-xs font-bold text-[#1A1A1F]">
-              {user?.name || 'Current User'}
-            </p>
-            <p className="text-[11px] text-[#6B6B76] mt-0.5">
-              {checkedIn ? 'Checked in for duty' : 'Start your daily work session'}
-            </p>
+          {/* User Status Box */}
+          <div
+            className={`rounded-xl px-3.5 py-2.5 border transition-all ${
+              checkedIn
+                ? 'bg-[#ECFDF5]/60 border-[#10B981]/25'
+                : 'bg-[#FFFBEB]/60 border-[#F59E0B]/25'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold text-[#1A1A1F]">
+                {user?.name || 'Current User'}
+              </p>
+              <span className="text-[10px] font-semibold text-[#6B6B76]">
+                {checkedIn ? 'Logged On' : 'Pending'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-1 text-[11px] font-medium">
+              {checkedIn ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-[#10B981] shrink-0" />
+                  <span className="text-[#065F46]">Checked in for duty</span>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="h-3.5 w-3.5 text-[#D97706] shrink-0" />
+                  <span className="text-[#92400E]">Not checked in</span>
+                </>
+              )}
+            </div>
           </div>
 
+          {/* Action Button: Red/Danger on Checked-in, Green/Success on Checked-out */}
           <button
             onClick={handleCheckInOut}
             disabled={checkInLoading}
-            className={`w-full rounded-xl py-2.5 text-xs font-bold shadow-sm transition-all duration-150 ${
+            className={`w-full rounded-xl py-2.5 text-xs font-bold shadow-sm transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2 ${
               checkedIn
-                ? 'border border-[#EAEAEC] bg-[#F8F9FA] text-[#1A1A1F] hover:bg-[#F1F1F4]'
-                : 'bg-[#5B4FE9] text-white hover:bg-[#4A3EC8] shadow-[0_4px_12px_rgba(91,79,233,0.3)]'
+                ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-[0_4px_14px_rgba(239,68,68,0.3)]'
+                : 'bg-[#10B981] hover:bg-[#059669] text-white shadow-[0_4px_14px_rgba(16,185,129,0.3)]'
             }`}
           >
-            {checkInLoading ? 'Processing…' : checkedIn ? 'Check Out of Office' : 'Check In to Workday'}
+            {checkInLoading ? (
+              'Processing…'
+            ) : checkedIn ? (
+              <>
+                <LogOut className="h-4 w-4" />
+                <span>Check Out of Office</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="h-4 w-4" />
+                <span>Check In to Office</span>
+              </>
+            )}
           </button>
-          {checkInError && <p className="text-xs text-red-500">{checkInError}</p>}
+          {checkInError && <p className="text-xs text-red-500 font-medium">{checkInError}</p>}
         </div>
       </div>
 
