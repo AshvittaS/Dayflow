@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle, Upload, Check, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import WorkweekHero from '../../components/auth/WorkweekHero'
 
@@ -43,11 +44,11 @@ export default function SignUp() {
 
   const strengthScore = Object.values(criteria).filter(Boolean).length
   const strengthLevels = [
-    { label: 'Too Short', color: 'bg-white/20', text: 'text-[#8e95a5]' },
-    { label: 'Weak', color: 'bg-[#f43f5e]', text: 'text-[#f43f5e]' },
-    { label: 'Fair', color: 'bg-[#f59e0b]', text: 'text-[#f59e0b]' },
-    { label: 'Good', color: 'bg-[#38bdf8]', text: 'text-[#38bdf8]' },
-    { label: 'Strong', color: 'bg-[#10b981]', text: 'text-[#10b981]' },
+    { label: 'Too Short', color: 'bg-slate-200', text: 'text-[#9AA4AD]' },
+    { label: 'Weak', color: 'bg-rose-500', text: 'text-rose-600' },
+    { label: 'Fair', color: 'bg-amber-500', text: 'text-amber-600' },
+    { label: 'Good', color: 'bg-blue-500', text: 'text-blue-600' },
+    { label: 'Strong', color: 'bg-emerald-500', text: 'text-emerald-600' },
   ]
   const currentStrength = pass.length === 0 ? strengthLevels[0] : strengthLevels[strengthScore]
 
@@ -75,7 +76,7 @@ export default function SignUp() {
     }
     setLogoFile(file)
     const reader = new FileReader()
-    reader.onload = ev => setLogoPreview(ev.target.result)
+    reader.onload = (ev) => setLogoPreview(ev.target.result)
     reader.readAsDataURL(file)
     setSubmitError('')
   }
@@ -146,7 +147,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0b0c10] text-[#f8fafc]">
+    <div className="flex min-h-screen bg-[#F8F9FA] text-[#1A1A1F]">
       {/* ── Left Hero Panel ── */}
       <WorkweekHero mode="signup" />
 
@@ -154,37 +155,37 @@ export default function SignUp() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 lg:px-16 overflow-y-auto">
         {/* Mobile Header with brand */}
         <div className="mb-6 flex flex-col items-center text-center lg:hidden">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-[#7c3aed] shadow-lg shadow-accent/25 ring-1 ring-white/20">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#5B4FE9] text-white shadow-lg shadow-[#5B4FE9]/25 ring-1 ring-white/20">
             <svg
               className="h-6 w-6 text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M3 12h3l3-7 4 14 3-7h5" />
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          <h1 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-white">
-            Day<span className="text-accent">flow</span>
+          <h1 className="mt-2.5 font-display text-2xl font-bold tracking-tight text-[#1A1A1F]">
+            Day<span className="text-[#5B4FE9]">flow</span>
           </h1>
-          <p className="font-mono text-xs text-[#8e95a5]">Human Resource Management</p>
+          <p className="font-mono text-xs text-[#6B6B76]">Human Resource Management</p>
         </div>
 
         <div className="w-full max-w-[460px]">
           {/* Navigation Switcher Tabs */}
-          <div className="mb-6 flex rounded-xl border border-white/10 bg-[#12141a] p-1 shadow-inner">
+          <div className="mb-6 flex rounded-xl border border-[#EAEAEC] bg-[#F1F1F4] p-1 shadow-inner">
             <Link
               to="/signin"
-              className="flex-1 rounded-lg py-2 text-center text-xs font-medium text-[#8e95a5] hover:text-white transition-all"
+              className="flex-1 rounded-lg py-2 text-center text-xs font-semibold text-[#6B6B76] hover:text-[#1A1A1F] transition-all"
             >
               Sign In
             </Link>
             <button
               type="button"
-              className="flex-1 rounded-lg bg-accent py-2 text-center text-xs font-semibold text-white shadow-md transition-all"
+              className="flex-1 rounded-lg bg-white py-2 text-center text-xs font-bold text-[#1A1A1F] shadow-sm transition-all"
             >
               Create Workspace
             </button>
@@ -192,25 +193,26 @@ export default function SignUp() {
 
           {/* Form Header */}
           <div className="mb-5">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-accent">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#5B4FE9]/20 bg-[#5B4FE9]/10 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#5B4FE9]">
+              <ShieldCheck className="h-3 w-3" />
               Admin Only Provisioning
             </div>
-            <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-white">
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-[#1A1A1F]">
               Create your HR Workspace
             </h2>
-            <p className="mt-1 text-xs leading-relaxed text-[#8e95a5]">
+            <p className="mt-1 text-xs leading-relaxed text-[#6B6B76]">
               Set up your organization’s primary management account.
             </p>
           </div>
 
           {/* Critical Framing Alert */}
-          <div className="mb-5 rounded-xl border border-accent/20 bg-accent/5 p-3.5 text-xs text-[#d8dde6] leading-relaxed">
+          <div className="mb-5 rounded-xl border border-[#5B4FE9]/20 bg-[#EEEDFC]/40 p-3.5 text-xs text-[#1A1A1F] leading-relaxed">
             <div className="flex items-start gap-2.5">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#5B4FE9]/10 text-xs font-bold text-[#5B4FE9]">
                 🛡️
               </span>
               <div>
-                <span className="font-semibold text-white">Company Workspace Architecture: </span>
+                <span className="font-bold text-[#1A1A1F]">Company Architecture: </span>
                 This creates your master organization profile. Employees do not self-register — they receive auto-generated Login IDs once you onboard them.
               </div>
             </div>
@@ -220,13 +222,9 @@ export default function SignUp() {
           {submitError && (
             <div
               role="alert"
-              className="mb-4 flex items-start gap-3 rounded-xl border border-[#f43f5e]/30 bg-[#f43f5e]/10 p-3 text-xs text-[#f43f5e] animate-fade-in"
+              className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 animate-fade-in"
             >
-              <svg className="h-4 w-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{submitError}</span>
             </div>
           )}
@@ -237,7 +235,7 @@ export default function SignUp() {
             <div>
               <label
                 htmlFor="companyName"
-                className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5] block mb-1.5"
+                className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76] block mb-1.5"
               >
                 Company Name & Brand Logo
               </label>
@@ -252,10 +250,10 @@ export default function SignUp() {
                   onClick={() => logoInputRef.current?.click()}
                   className={`group relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border transition-all ${
                     logoPreview
-                      ? 'border-accent/40 bg-[#181a22]'
+                      ? 'border-[#5B4FE9]/40 bg-white'
                       : isDragging
-                      ? 'border-accent bg-accent/10 scale-105'
-                      : 'border-dashed border-[#353b4b] bg-[#141720] hover:border-accent/60 hover:bg-[#181a24]'
+                      ? 'border-[#5B4FE9] bg-[#5B4FE9]/10 scale-105'
+                      : 'border-dashed border-[#D5D5DC] bg-white hover:border-[#5B4FE9] hover:bg-[#EEEDFC]/30'
                   }`}
                   title="Click or drag to upload company logo"
                 >
@@ -266,17 +264,7 @@ export default function SignUp() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <svg
-                      className="h-5 w-5 text-[#8e95a5] group-hover:text-accent transition-colors"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" />
-                      <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
+                    <Upload className="h-5 w-5 text-[#9AA4AD] group-hover:text-[#5B4FE9] transition-colors" />
                   )}
                 </div>
 
@@ -297,26 +285,26 @@ export default function SignUp() {
                     onChange={(e) => handleChange('companyName', e.target.value)}
                     onBlur={() => handleBlur('companyName')}
                     placeholder="e.g. Acme Technologies Inc."
-                    className={`w-full rounded-xl border bg-[#141720] px-4 py-3 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all ${
+                    className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all ${
                       touched.companyName && formData.companyName
                         ? isCompanyValid
-                          ? 'border-[#10b981]/50 focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20'
-                          : 'border-[#f43f5e]/50 focus:border-[#f43f5e] focus:ring-2 focus:ring-[#f43f5e]/20'
-                        : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                          ? 'border-[#10B981]/50 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/15'
+                          : 'border-[#F43F5E]/50 focus:border-[#F43F5E] focus:ring-2 focus:ring-[#F43F5E]/15'
+                        : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                     }`}
                   />
                 </div>
               </div>
 
               {logoFile && (
-                <div className="mt-2 flex items-center justify-between rounded-lg bg-[#141720] px-3 py-1.5 text-[11px] text-[#8e95a5] border border-white/5">
-                  <span className="truncate max-w-[200px] text-white">
+                <div className="mt-2 flex items-center justify-between rounded-lg bg-white px-3 py-1.5 text-[11px] text-[#6B6B76] border border-[#EAEAEC] shadow-subtle">
+                  <span className="truncate max-w-[200px] text-[#1A1A1F]">
                     📎 {logoFile.name} ({(logoFile.size / 1024).toFixed(0)} KB)
                   </span>
                   <button
                     type="button"
                     onClick={handleRemoveLogo}
-                    className="text-[#f43f5e] hover:underline"
+                    className="text-rose-600 hover:underline font-semibold"
                   >
                     Remove
                   </button>
@@ -329,7 +317,7 @@ export default function SignUp() {
               <div>
                 <label
                   htmlFor="fullName"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5] block mb-1.5"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76] block mb-1.5"
                 >
                   Admin Full Name
                 </label>
@@ -341,12 +329,12 @@ export default function SignUp() {
                   onChange={(e) => handleChange('fullName', e.target.value)}
                   onBlur={() => handleBlur('fullName')}
                   placeholder="Jane Smith"
-                  className={`w-full rounded-xl border bg-[#141720] px-4 py-2.5 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all ${
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all ${
                     touched.fullName && formData.fullName
                       ? isNameValid
-                        ? 'border-[#10b981]/50'
-                        : 'border-[#f43f5e]/50'
-                      : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                        ? 'border-[#10B981]/50'
+                        : 'border-[#F43F5E]/50'
+                      : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                   }`}
                 />
               </div>
@@ -354,7 +342,7 @@ export default function SignUp() {
               <div>
                 <label
                   htmlFor="phone"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5] block mb-1.5"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76] block mb-1.5"
                 >
                   Contact Phone
                 </label>
@@ -366,12 +354,12 @@ export default function SignUp() {
                   onChange={(e) => handleChange('phone', e.target.value)}
                   onBlur={() => handleBlur('phone')}
                   placeholder="+91 98765 00000"
-                  className={`w-full rounded-xl border bg-[#141720] px-4 py-2.5 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all ${
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all ${
                     touched.phone && formData.phone
                       ? isPhoneValid
-                        ? 'border-[#10b981]/50'
-                        : 'border-[#f59e0b]/50'
-                      : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                        ? 'border-[#10B981]/50'
+                        : 'border-[#F59E0B]/50'
+                      : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                   }`}
                 />
               </div>
@@ -382,14 +370,14 @@ export default function SignUp() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="signupEmail"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5]"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76]"
                 >
                   Company Work Email
                 </label>
                 {touched.email && formData.email && (
                   <span
-                    className={`font-mono text-[10px] ${
-                      isEmailValid ? 'text-[#10b981]' : 'text-[#f43f5e]'
+                    className={`font-mono text-[10px] font-bold ${
+                      isEmailValid ? 'text-[#059669]' : 'text-rose-600'
                     }`}
                   >
                     {isEmailValid ? '✓ Valid Work Email' : 'Invalid email format'}
@@ -404,12 +392,12 @@ export default function SignUp() {
                 onChange={(e) => handleChange('email', e.target.value)}
                 onBlur={() => handleBlur('email')}
                 placeholder="admin@company.com"
-                className={`w-full rounded-xl border bg-[#141720] px-4 py-2.5 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all ${
+                className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all ${
                   touched.email && formData.email
                     ? isEmailValid
-                      ? 'border-[#10b981]/50 focus:border-[#10b981]'
-                      : 'border-[#f43f5e]/50 focus:border-[#f43f5e]'
-                    : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                      ? 'border-[#10B981]/50 focus:border-[#10B981]'
+                      : 'border-[#F43F5E]/50 focus:border-[#F43F5E]'
+                    : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                 }`}
               />
             </div>
@@ -419,7 +407,7 @@ export default function SignUp() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="signupPassword"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5]"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76]"
                 >
                   Master Password
                 </label>
@@ -438,26 +426,15 @@ export default function SignUp() {
                   onChange={(e) => handleChange('password', e.target.value)}
                   onBlur={() => handleBlur('password')}
                   placeholder="Min 8 characters, numbers & symbols"
-                  className="w-full rounded-xl border border-[#262a36] bg-[#141720] px-4 py-2.5 pr-11 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
+                  className="w-full rounded-xl border border-[#EAEAEC] bg-white px-4 py-2.5 pr-11 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15 transition-all"
                 />
                 <button
                   type="button"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#8e95a5] hover:text-white transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#9AA4AD] hover:text-[#1A1A1F] transition-colors"
                 >
-                  {showPassword ? (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
 
@@ -467,7 +444,7 @@ export default function SignUp() {
                   <div
                     key={step}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                      step <= strengthScore ? currentStrength.color : 'bg-white/10'
+                      step <= strengthScore ? currentStrength.color : 'bg-slate-200'
                     }`}
                   />
                 ))}
@@ -477,28 +454,28 @@ export default function SignUp() {
               <div className="mt-2.5 flex flex-wrap gap-2 text-[10px] font-mono">
                 <span
                   className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 transition-colors ${
-                    criteria.length ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-white/5 text-[#8e95a5]'
+                    criteria.length ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-[#6B6B76]'
                   }`}
                 >
                   {criteria.length ? '✓' : '•'} 8+ chars
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 transition-colors ${
-                    criteria.hasUpper ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-white/5 text-[#8e95a5]'
+                    criteria.hasUpper ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-[#6B6B76]'
                   }`}
                 >
                   {criteria.hasUpper ? '✓' : '•'} Uppercase
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 transition-colors ${
-                    criteria.hasNumber ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-white/5 text-[#8e95a5]'
+                    criteria.hasNumber ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-[#6B6B76]'
                   }`}
                 >
                   {criteria.hasNumber ? '✓' : '•'} Number
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 transition-colors ${
-                    criteria.hasSpecial ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-white/5 text-[#8e95a5]'
+                    criteria.hasSpecial ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-[#6B6B76]'
                   }`}
                 >
                   {criteria.hasSpecial ? '✓' : '•'} Symbol
@@ -511,14 +488,14 @@ export default function SignUp() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="signupConfirmPassword"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5]"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76]"
                 >
                   Confirm Password
                 </label>
                 {formData.confirmPassword && (
                   <span
-                    className={`font-mono text-[10px] ${
-                      isPasswordMatch ? 'text-[#10b981]' : 'text-[#f43f5e]'
+                    className={`font-mono text-[10px] font-bold ${
+                      isPasswordMatch ? 'text-[#059669]' : 'text-rose-600'
                     }`}
                   >
                     {isPasswordMatch ? '✓ Passwords match' : '✗ Passwords do not match'}
@@ -534,32 +511,21 @@ export default function SignUp() {
                   onChange={(e) => handleChange('confirmPassword', e.target.value)}
                   onBlur={() => handleBlur('confirmPassword')}
                   placeholder="Re-enter master password"
-                  className={`w-full rounded-xl border bg-[#141720] px-4 py-2.5 pr-11 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all ${
+                  className={`w-full rounded-xl border bg-white px-4 py-2.5 pr-11 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all ${
                     formData.confirmPassword
                       ? isPasswordMatch
-                        ? 'border-[#10b981]/50 focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20'
-                        : 'border-[#f43f5e]/50 focus:border-[#f43f5e] focus:ring-2 focus:ring-[#f43f5e]/20'
-                      : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                        ? 'border-[#10B981]/50 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/15'
+                        : 'border-[#F43F5E]/50 focus:border-[#F43F5E] focus:ring-2 focus:ring-[#F43F5E]/15'
+                      : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                   }`}
                 />
                 <button
                   type="button"
                   aria-label={showConfirm ? 'Hide password' : 'Show password'}
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#8e95a5] hover:text-white transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#9AA4AD] hover:text-[#1A1A1F] transition-colors"
                 >
-                  {showConfirm ? (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
@@ -568,7 +534,7 @@ export default function SignUp() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative mt-4 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent hover:bg-accent-hover py-3.5 text-sm font-bold text-white shadow-lg shadow-accent/25 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+              className="group relative mt-4 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#5B4FE9] hover:bg-[#4A3EC8] py-3.5 text-xs font-bold text-white shadow-[0_4px_14px_rgba(91,79,233,0.35)] transition-all duration-200 active:scale-[0.99] disabled:opacity-70 cursor-pointer"
             >
               {isLoading ? (
                 <span className="inline-flex items-center gap-2">
@@ -581,27 +547,18 @@ export default function SignUp() {
               ) : (
                 <>
                   <span>Create Workspace & Launch Dayflow</span>
-                  <svg
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
             </button>
           </form>
 
           {/* Switch to Sign In */}
-          <div className="mt-6 text-center text-xs text-[#8e95a5]">
+          <div className="mt-6 text-center text-xs text-[#6B6B76]">
             <span>Already have an active company workspace? </span>
             <Link
               to="/signin"
-              className="font-semibold text-accent hover:underline underline-offset-4"
+              className="font-bold text-[#5B4FE9] hover:underline underline-offset-4"
             >
               Sign In here →
             </Link>
