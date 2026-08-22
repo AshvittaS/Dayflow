@@ -31,18 +31,23 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS employees (
   id           INT          PRIMARY KEY AUTO_INCREMENT,
   user_id      INT          NOT NULL UNIQUE,
-  name         VARCHAR(100) NOT NULL,
-  department   VARCHAR(100),
-  manager      VARCHAR(100),
-  mobile       VARCHAR(20),
-  about        TEXT,
-  skills       JSON,          -- e.g. ["React","Node.js"]
+  name           VARCHAR(100) NOT NULL,
+  department     VARCHAR(100),
+  title          VARCHAR(100),
+  location       VARCHAR(100) DEFAULT 'Bengaluru',
+  manager        VARCHAR(100),
+  mobile         VARCHAR(20),
+  about          TEXT,
+  date_of_birth  DATE,
+  gender         VARCHAR(50),
+  address        TEXT,
+  skills         JSON,          -- e.g. ["React","Node.js"]
   certifications JSON,
-  interests    JSON,
-  status       ENUM('present','absent','leave') NOT NULL DEFAULT 'absent',
-  avatar_url   VARCHAR(255),
-  join_date    DATE,
-  created_at   DATETIME     DEFAULT CURRENT_TIMESTAMP,
+  interests      JSON,
+  status         ENUM('present','absent','leave') NOT NULL DEFAULT 'absent',
+  avatar_url     VARCHAR(255),
+  join_date      DATE,
+  created_at     DATETIME     DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

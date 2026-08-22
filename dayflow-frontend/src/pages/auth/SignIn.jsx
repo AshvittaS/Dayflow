@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, User, Lock, Eye, EyeOff, AlertCircle, Info, Sparkles } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import WorkweekHero from '../../components/auth/WorkweekHero'
 
@@ -58,7 +59,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0b0c10] text-[#f8fafc]">
+    <div className="flex min-h-screen bg-[#F8F9FA] text-[#1A1A1F]">
       {/* ── Left Hero Panel ── */}
       <WorkweekHero mode="signin" />
 
@@ -66,37 +67,37 @@ export default function SignIn() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-16 overflow-y-auto">
         {/* Mobile Header with brand */}
         <div className="mb-8 flex flex-col items-center text-center lg:hidden">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-[#7c3aed] shadow-lg shadow-accent/25 ring-1 ring-white/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#5B4FE9] text-white shadow-lg shadow-[#5B4FE9]/25 ring-1 ring-white/20">
             <svg
               className="h-6 w-6 text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M3 12h3l3-7 4 14 3-7h5" />
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
-          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-white">
-            Day<span className="text-accent">flow</span>
+          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-[#1A1A1F]">
+            Day<span className="text-[#5B4FE9]">flow</span>
           </h1>
-          <p className="font-mono text-xs text-[#8e95a5]">Human Resource Management</p>
+          <p className="font-mono text-xs text-[#6B6B76]">Human Resource Management</p>
         </div>
 
         <div className="w-full max-w-[420px]">
           {/* Navigation Pill Switcher */}
-          <div className="mb-8 flex rounded-xl border border-white/10 bg-[#12141a] p-1 shadow-inner">
+          <div className="mb-8 flex rounded-xl border border-[#EAEAEC] bg-[#F1F1F4] p-1 shadow-inner">
             <button
               type="button"
-              className="flex-1 rounded-lg bg-accent py-2 text-center text-xs font-semibold text-white shadow-md transition-all"
+              className="flex-1 rounded-lg bg-white py-2 text-center text-xs font-bold text-[#1A1A1F] shadow-sm transition-all"
             >
               Sign In
             </button>
             <Link
               to="/signup"
-              className="flex-1 rounded-lg py-2 text-center text-xs font-medium text-[#8e95a5] hover:text-white transition-all"
+              className="flex-1 rounded-lg py-2 text-center text-xs font-semibold text-[#6B6B76] hover:text-[#1A1A1F] transition-all"
             >
               Create Workspace
             </Link>
@@ -105,16 +106,16 @@ export default function SignIn() {
           {/* Form Header */}
           <div className="mb-6">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
-              <span className="font-mono text-[11px] uppercase tracking-wider text-[#8e95a5]">
+              <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+              <span className="font-mono text-[11px] uppercase tracking-wider font-bold text-[#6B6B76]">
                 Identity Gateway
               </span>
             </div>
-            <h2 className="mt-1 font-display text-2xl font-bold tracking-tight text-white">
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-[#1A1A1F]">
               Welcome back
             </h2>
-            <p className="mt-1 text-sm text-[#8e95a5]">
-              Access your schedule, attendance pulse, and company directory.
+            <p className="mt-1 text-xs text-[#6B6B76]">
+              Access your schedule, live attendance pulse, and team directory.
             </p>
           </div>
 
@@ -122,13 +123,9 @@ export default function SignIn() {
           {errorMsg && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-xl border border-[#f43f5e]/30 bg-[#f43f5e]/10 p-3.5 text-xs text-[#f43f5e] animate-fade-in"
+              className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 animate-fade-in"
             >
-              <svg className="h-4 w-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -140,14 +137,14 @@ export default function SignIn() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="loginId"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5]"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76]"
                 >
                   Login ID / Work Email
                 </label>
                 {touched.loginId && loginId && (
                   <span
-                    className={`font-mono text-[10px] ${
-                      isLoginIdValid ? 'text-[#10b981]' : 'text-[#f59e0b]'
+                    className={`font-mono text-[10px] font-bold ${
+                      isLoginIdValid ? 'text-[#059669]' : 'text-[#D97706]'
                     }`}
                   >
                     {isLoginIdValid ? '✓ Valid Format' : 'ID or Email'}
@@ -166,26 +163,23 @@ export default function SignIn() {
                   }}
                   onBlur={() => setTouched((prev) => ({ ...prev, loginId: true }))}
                   placeholder="e.g. DF26JD0001 or jamie.doe@dayflow.dev"
-                  className={`w-full rounded-xl border bg-[#141720] px-4 py-3 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all duration-200 ${
+                  className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all duration-200 ${
                     touched.loginId && loginId
                       ? isLoginIdValid
-                        ? 'border-[#10b981]/50 focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20'
-                        : 'border-[#f59e0b]/50 focus:border-[#f59e0b] focus:ring-2 focus:ring-[#f59e0b]/20'
-                      : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                        ? 'border-[#10B981]/50 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/15'
+                        : 'border-[#F59E0B]/50 focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/15'
+                      : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                   }`}
                 />
-                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8e95a5]">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9AA4AD]">
+                  <User className="h-4 w-4" />
                 </div>
               </div>
 
-              <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#141720]/80 p-2.5 border border-white/5 text-[11px] text-[#8e95a5] leading-relaxed">
-                <span className="text-accent font-bold">ℹ</span>
+              <div className="mt-2 flex items-start gap-2 rounded-lg bg-[#F8F9FA] p-2.5 border border-[#EAEAEC] text-[11px] text-[#6B6B76] leading-relaxed">
+                <Info className="h-3.5 w-3.5 text-[#5B4FE9] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Note:</strong> Login IDs (e.g. <span className="font-mono text-white">DF26JD0001</span>) are auto-generated and assigned by the system admin.
+                  <strong>Note:</strong> Login IDs (e.g. <span className="font-mono font-bold text-[#1A1A1F]">DF26JD0001</span>) are auto-generated and assigned by the system admin.
                 </span>
               </div>
             </div>
@@ -195,11 +189,11 @@ export default function SignIn() {
               <div className="flex items-center justify-between mb-1.5">
                 <label
                   htmlFor="password"
-                  className="font-mono text-xs font-semibold uppercase tracking-wider text-[#8e95a5]"
+                  className="font-mono text-xs font-bold uppercase tracking-wider text-[#6B6B76]"
                 >
                   Password
                 </label>
-                <span className="text-[11px] text-[#8e95a5]">
+                <span className="text-[11px] text-[#9AA4AD]">
                   Admin or Staff credential
                 </span>
               </div>
@@ -216,32 +210,21 @@ export default function SignIn() {
                   }}
                   onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
                   placeholder="••••••••••••"
-                  className={`w-full rounded-xl border bg-[#141720] px-4 py-3 pr-11 text-sm text-[#f8fafc] placeholder-[#5a6275] outline-none transition-all duration-200 ${
+                  className={`w-full rounded-xl border bg-white px-4 py-3 pr-11 text-sm text-[#1A1A1F] placeholder-[#9AA4AD] shadow-subtle outline-none transition-all duration-200 ${
                     touched.password && password
                       ? isPasswordValid
-                        ? 'border-[#10b981]/50 focus:border-[#10b981] focus:ring-2 focus:ring-[#10b981]/20'
-                        : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
-                      : 'border-[#262a36] focus:border-accent focus:ring-2 focus:ring-accent/20'
+                        ? 'border-[#10B981]/50 focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/15'
+                        : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
+                      : 'border-[#EAEAEC] focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/15'
                   }`}
                 />
                 <button
                   type="button"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#8e95a5] hover:text-white transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#9AA4AD] hover:text-[#1A1A1F] transition-colors"
                 >
-                  {showPassword ? (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
@@ -250,7 +233,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent hover:bg-accent-hover py-3.5 text-sm font-bold text-white shadow-lg shadow-accent/25 transition-all duration-200 active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+              className="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#5B4FE9] hover:bg-[#4A3EC8] py-3.5 text-xs font-bold text-white shadow-[0_4px_14px_rgba(91,79,233,0.35)] transition-all duration-200 active:scale-[0.99] disabled:opacity-70 cursor-pointer"
             >
               {isLoading ? (
                 <span className="inline-flex items-center gap-2">
@@ -263,38 +246,30 @@ export default function SignIn() {
               ) : (
                 <>
                   <span>Sign In to Workspace</span>
-                  <svg
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </>
               )}
             </button>
           </form>
 
           {/* Quick Demo Credentials Bar */}
-          <div className="mt-6 rounded-xl border border-dashed border-[#262a36] bg-[#141720]/60 p-3 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[#8e95a5] mb-2">
-              ⚡ Instant Demo Credentials
+          <div className="mt-6 rounded-xl border border-dashed border-[#EAEAEC] bg-white p-3.5 text-center shadow-subtle">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#6B6B76] mb-2 flex items-center justify-center gap-1">
+              <Sparkles className="h-3 w-3 text-[#5B4FE9]" />
+              Instant Demo Credentials
             </p>
             <div className="flex items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={() => handlePrefill('admin')}
-                className="rounded-lg border border-white/10 bg-[#1b1f2c] px-3 py-1.5 text-xs font-medium text-[#f8fafc] hover:border-accent/50 hover:bg-[#202534] transition-all"
+                className="rounded-lg border border-[#EAEAEC] bg-[#F8F9FA] px-3 py-1.5 text-xs font-semibold text-[#1A1A1F] hover:border-[#5B4FE9] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] transition-all"
               >
                 Fill Admin (DF26JD)
               </button>
               <button
                 type="button"
                 onClick={() => handlePrefill('employee')}
-                className="rounded-lg border border-white/10 bg-[#1b1f2c] px-3 py-1.5 text-xs font-medium text-[#8e95a5] hover:border-accent/50 hover:text-white transition-all"
+                className="rounded-lg border border-[#EAEAEC] bg-[#F8F9FA] px-3 py-1.5 text-xs font-semibold text-[#6B6B76] hover:border-[#5B4FE9] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] transition-all"
               >
                 Fill Employee (DF26AK)
               </button>
@@ -302,11 +277,11 @@ export default function SignIn() {
           </div>
 
           {/* Switch to Sign Up */}
-          <div className="mt-8 text-center text-xs text-[#8e95a5]">
+          <div className="mt-8 text-center text-xs text-[#6B6B76]">
             <span>Need to provision an enterprise workspace? </span>
             <Link
               to="/signup"
-              className="font-semibold text-accent hover:underline underline-offset-4"
+              className="font-bold text-[#5B4FE9] hover:underline underline-offset-4"
             >
               Create Company Account →
             </Link>

@@ -1,95 +1,189 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MapPin, Mail } from 'lucide-react'
-import StatusDot from '../../components/ui/StatusDot.jsx'
+import { MapPin, ArrowUpRight, Plane, Sparkles } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 
-export default function EmployeeCard({ employee, overrideStatus }) {
+// High-quality stock portrait headshots mapped by employee ID
+const DEFAULT_AVATARS = {
+  '1': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', // Jamie Doe
+  '2': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', // Alex Kumar
+  '3': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80', // Priya Sharma
+  '4': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', // Marcus Vance
+  '5': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80', // Sarah Chen
+  '6': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80', // David Miller
+  'DF26JD0001': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'DF26AK0002': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+}
+
+export default function EmployeeCard({ employee, overrideStatus, isHighlighted }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const [imgError, setImgError] = useState(false)
   const displayStatus = overrideStatus ?? employee?.status ?? 'absent'
   const isSelf = String(employee?.id) === String(user?.employeeId)
 
+  const rawAvatar = employee?.avatarUrl || employee?.avatar
+  const photoUrl = rawAvatar
+    ? rawAvatar.startsWith('/uploads')
+      ? `http://localhost:4000${rawAvatar}`
+      : rawAvatar
+    : DEFAULT_AVATARS[String(employee?.id)] || DEFAULT_AVATARS[employee?.loginId]
+
   const initials = employee?.name
-    ? employee.name.split(' ').map((n) => n[0]).join('')
+    ? employee.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
     : '?'
 
-  // Harmonious, desaturated background & text colors for avatars
+  // Consistent Department Color System
+  const deptStyles = {
+    Engineering: {
+      bar: 'border-l-[#5B4FE9]',
+      badge: 'bg-[#5B4FE9]/10 text-[#5B4FE9]',
+      glow: 'hover:border-[#5B4FE9]/40'
+    },
+    Design: {
+      bar: 'border-l-[#C026D3]',
+      badge: 'bg-[#C026D3]/10 text-[#C026D3]',
+      glow: 'hover:border-[#C026D3]/40'
+    },
+    HR: {
+      bar: 'border-l-[#059669]',
+      badge: 'bg-[#059669]/10 text-[#059669]',
+      glow: 'hover:border-[#059669]/40'
+    },
+    Sales: {
+      bar: 'border-l-[#D97706]',
+      badge: 'bg-[#D97706]/10 text-[#D97706]',
+      glow: 'hover:border-[#D97706]/40'
+    },
+    Administration: {
+      bar: 'border-l-[#2563EB]',
+      badge: 'bg-[#2563EB]/10 text-[#2563EB]',
+      glow: 'hover:border-[#2563EB]/40'
+    }
+  }
+
+  const deptTheme = deptStyles[employee?.department] || {
+    bar: 'border-l-slate-400',
+    badge: 'bg-slate-100 text-slate-700',
+    glow: 'hover:border-slate-400'
+  }
+
+  // Soft gradient themes for fallback avatar background
   const avatarThemes = [
-    { bg: 'bg-[#EEEDFC]', text: 'text-[#5B4FE9]' }, // Indigo
-    { bg: 'bg-[#ECFDF5]', text: 'text-[#059669]' }, // Emerald
-    { bg: 'bg-[#EFF6FF]', text: 'text-[#2563EB]' }, // Blue
-    { bg: 'bg-[#FFF7ED]', text: 'text-[#EA580C]' }, // Warm Orange
-    { bg: 'bg-[#FDF4FF]', text: 'text-[#C026D3]' }, // Fuchsia
-    { bg: 'bg-[#F0FDFA]', text: 'text-[#0D9488]' }  // Teal
+    { from: 'from-[#EEEDFC]', to: 'to-[#E0DEF9]', text: 'text-[#4F46E5]' },
+    { from: 'from-[#ECFDF5]', to: 'to-[#D1FAE5]', text: 'text-[#059669]' },
+    { from: 'from-[#EFF6FF]', to: 'to-[#DBEAFE]', text: 'text-[#2563EB]' },
+    { from: 'from-[#FFF7ED]', to: 'to-[#FFEDD5]', text: 'text-[#EA580C]' },
+    { from: 'from-[#FDF4FF]', to: 'to-[#FAE8FF]', text: 'text-[#C026D3]' },
+    { from: 'from-[#F0FDFA]', to: 'to-[#CCFBF1]', text: 'text-[#0D9488]' }
   ]
 
   const strId = String(employee?.id || '0')
   const charCode = strId.charCodeAt(strId.length - 1) || 0
   const theme = avatarThemes[charCode % avatarThemes.length]
 
+  // Status configuration
+  const statusStyles = {
+    present: { label: 'Present', dot: 'bg-[#10B981]', ring: 'ring-[#10B981]/30' },
+    leave: { label: 'On Leave', isLeave: true, ring: 'ring-[#3B82F6]/30' },
+    absent: { label: 'Absent', dot: 'bg-[#F59E0B]', ring: 'ring-[#F59E0B]/30' }
+  }
+  const currentStatus = statusStyles[displayStatus] || statusStyles.absent
+
   return (
     <div
+      id={`employee-card-${employee.id}`}
       onClick={() => navigate(`/profile/${employee.id}`)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          navigate(`/profile/${employee.id}`)
-        }
+        if (e.key === 'Enter' || e.key === ' ') navigate(`/profile/${employee.id}`)
       }}
-      className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-5 text-left transition-all duration-200 cursor-pointer ${
+      className={`group relative flex flex-col justify-between rounded-2xl border border-l-[3.5px] p-5 text-left transition-all duration-200 ease-out cursor-pointer ${
+        deptTheme.bar
+      } ${
         isSelf
-          ? 'border-[#5B4FE9]/30 ring-1 ring-[#5B4FE9]/20 shadow-[0_2px_8px_rgba(91,79,233,0.06)]'
-          : 'border-[#EAEAEC] shadow-subtle'
-      } hover:-translate-y-1 hover:border-[#5B4FE9]/50 hover:shadow-[0_12px_24px_-6px_rgba(91,79,233,0.1),0_4px_8px_-4px_rgba(0,0,0,0.03)]`}
+          ? 'bg-gradient-to-br from-[#5B4FE9]/[0.08] via-[#5B4FE9]/[0.02] to-white border-[#5B4FE9]/40 ring-1 ring-[#5B4FE9]/25 shadow-md'
+          : 'bg-white border-[#EAEAEC] shadow-subtle hover:shadow-[0_16px_32px_-8px_rgba(0,0,0,0.08)]'
+      } ${deptTheme.glow} ${
+        isHighlighted ? 'ring-2 ring-[#5B4FE9] -translate-y-1 shadow-lg' : ''
+      } hover:-translate-y-1`}
     >
-      {/* Top row: Self tag (if current user) + pinned status indicator */}
+      {/* ── Top Row: Quiet metadata + Presence indicator ── */}
       <div className="flex items-center justify-between w-full">
         {isSelf ? (
-          <span className="inline-flex items-center rounded-full bg-[#5B4FE9]/10 px-2 py-0.5 text-[10px] font-semibold text-[#5B4FE9]">
-            You
-          </span>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#5B4FE9] px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+            <Sparkles className="h-2.5 w-2.5" />
+            <span>Your Profile (Home Base)</span>
+          </div>
         ) : (
-          <span className="font-mono text-[10px] text-[#92929D]">{employee?.loginId}</span>
+          <span className="font-mono text-[10px] font-medium text-[#9AA4AD]">
+            {employee?.loginId || `ID #${employee.id}`}
+          </span>
         )}
 
-        {/* Pinned status indicator in top-right */}
-        <div className="flex items-center gap-1.5 rounded-full bg-[#F8F9FA] border border-[#EAEAEC] px-2 py-0.5">
-          <StatusDot status={displayStatus} size="sm" />
-          <span className="text-[10px] font-medium text-[#6B6B76] capitalize">
-            {displayStatus === 'leave' ? 'On Leave' : displayStatus}
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B6B76]">
+          {currentStatus.isLeave ? (
+            <Plane className="h-3 w-3 text-[#3B82F6] fill-[#3B82F6]" />
+          ) : (
+            <span className={`h-2 w-2 rounded-full ${currentStatus.dot} ring-2 ${currentStatus.ring}`} />
+          )}
+          <span className="capitalize">{currentStatus.label}</span>
+        </div>
+      </div>
+
+      {/* ── Center: Profile Photo + Name + Department Badge ── */}
+      <div className="my-4 flex items-center gap-4">
+        <div
+          className="relative flex shrink-0 items-center justify-center rounded-2xl overflow-hidden shadow-sm ring-2 ring-white"
+          style={{ width: '52px', height: '52px' }}
+        >
+          {photoUrl && !imgError ? (
+            <img
+              src={photoUrl}
+              alt={employee?.name || 'Employee portrait'}
+              onError={() => setImgError(true)}
+              className="h-full w-full object-cover rounded-2xl transition-transform duration-200 group-hover:scale-105"
+            />
+          ) : (
+            <div
+              className={`flex h-full w-full items-center justify-center text-base font-extrabold bg-gradient-to-b ${theme.from} ${theme.to} ${theme.text}`}
+            >
+              {initials}
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold tracking-tight text-[#1A1A1F] truncate group-hover:text-[#5B4FE9] transition-colors">
+            {employee?.name}
+          </h3>
+          <p className="text-xs text-[#6B6B76] truncate font-medium mt-0.5">
+            {employee?.title || employee?.department}
+          </p>
+          <span
+            className={`mt-1.5 inline-block rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wide ${deptTheme.badge}`}
+          >
+            {employee?.department}
           </span>
         </div>
       </div>
 
-      {/* Main card body: Avatar + Name + Role/Dept */}
-      <div className="my-3 flex flex-col items-center text-center">
-        <div
-          className={`flex h-14 w-14 items-center justify-center rounded-full text-base font-bold shadow-sm transition group-hover:scale-105 ${theme.bg} ${theme.text}`}
-        >
-          {initials}
+      {/* ── Footer: Hairline divider + Quick info + Hover Affordance ── */}
+      <div className="border-t border-[#F1F1F4] pt-3 flex items-center justify-between text-[11px] text-[#6B6B76]">
+        <div className="flex items-center gap-1.5 truncate max-w-[55%]">
+          <MapPin className="h-3 w-3 text-[#9AA4AD] shrink-0" />
+          <span className="truncate">{employee?.location ? employee.location.split(',')[0] : 'Bengaluru'}</span>
         </div>
 
-        <h3 className="mt-3 text-sm font-bold text-[#1A1A1F] group-hover:text-[#5B4FE9] transition-colors">
-          {employee?.name}
-        </h3>
-        <p className="text-xs font-medium text-[#6B6B76]">
-          {employee?.title || employee?.department}
-        </p>
-        <span className="mt-1 text-[11px] text-[#92929D]">
-          {employee?.department}
-        </span>
-      </div>
-
-      {/* Card footer: Quick metadata (location & email) */}
-      <div className="mt-2 border-t border-[#F1F1F4] pt-3 flex items-center justify-between text-[11px] text-[#6B6B76]">
-        <div className="flex items-center gap-1 truncate max-w-[55%]">
-          <MapPin className="h-3 w-3 text-[#92929D] shrink-0" />
-          <span className="truncate">{employee?.location ? employee.location.split(',')[0] : 'Office'}</span>
-        </div>
-        <div className="flex items-center gap-1 truncate max-w-[45%]">
-          <Mail className="h-3 w-3 text-[#92929D] shrink-0" />
-          <span className="truncate">{employee?.email ? employee.email.split('@')[0] : ''}</span>
+        {/* Hover-revealed "View Profile →" link */}
+        <div className="flex items-center gap-1 font-bold text-xs text-[#5B4FE9] opacity-80 group-hover:opacity-100 transition-all">
+          <span className="group-hover:underline">View</span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </div>
       </div>
     </div>

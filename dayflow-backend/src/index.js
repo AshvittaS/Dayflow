@@ -18,7 +18,15 @@ const PORT = process.env.PORT || 4000
 
 // ── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. server-to-server, curl, mobile apps)
+    if (!origin) return callback(null, true)
+    // Allow any localhost / 127.0.0.1 dev origin regardless of port (5173, 5174, etc.)
+    if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin) || origin === process.env.CLIENT_URL) {
+      return callback(null, true)
+    }
+    callback(null, true)
+  },
   credentials: true
 }))
 app.use(express.json())
@@ -28,13 +36,23 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 
 // ── Routes ──────────────────────────────────────────────────────────────────
-app.use('/auth',                  authRoutes)
-app.use('/employees',             employeeRoutes)
-app.use('/attendance',            attendanceRoutes)
-app.use('/timeoff',               timeoffRoutes)
-app.use('/timeoff/allocations',   allocationRoutes)
-app.use('/salary',                salaryRoutes)
-app.use('/analytics',             analyticsRoutes)
+// API prefixed routes (Standard REST contract)
+app.use('/api/auth',                authRoutes)
+app.use('/api/employees',           employeeRoutes)
+app.use('/api/attendance',          attendanceRoutes)
+app.use('/api/timeoff',             timeoffRoutes)
+app.use('/api/timeoff/allocations', allocationRoutes)
+app.use('/api/salary',              salaryRoutes)
+app.use('/api/analytics',           analyticsRoutes)
+
+// Direct routes (backwards compatibility)
+app.use('/auth',                    authRoutes)
+app.use('/employees',               employeeRoutes)
+app.use('/attendance',              attendanceRoutes)
+app.use('/timeoff',                 timeoffRoutes)
+app.use('/timeoff/allocations',     allocationRoutes)
+app.use('/salary',                  salaryRoutes)
+app.use('/analytics',               analyticsRoutes)
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {

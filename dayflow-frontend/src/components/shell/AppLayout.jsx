@@ -3,9 +3,12 @@ import Navbar from './Navbar.jsx'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1F] antialiased">
+    <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1F] antialiased flex flex-col">
+      {/* ── Top Horizontal Navigation Bar ── */}
       <Navbar />
-      <main className="mx-auto max-w-7xl px-6 py-8">
+
+      {/* ── Main Canvas Content Area ── */}
+      <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
     </div>

@@ -38,10 +38,14 @@ const ALLOWED_TYPES = ['Paid Time Off', 'Sick Leave', 'Unpaid Leave']
 router.get('/', auth, async (req, res) => {
   try {
     let query, params
-    if (req.user.role === 'admin') {
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'hr' || req.user.role === 'hr_officer'
+    if (isAdmin) {
       query = `
-        SELECT tor.id, e.name AS employee, lt.name AS type,
-               tor.start_date AS startDate, tor.end_date AS endDate,
+        SELECT tor.id, e.id AS employeeId, e.name AS employee, e.department, 
+               e.mobile, u.email, u.login_id AS loginId,
+               lt.name AS type,
+               DATE_FORMAT(tor.start_date, '%Y-%m-%d') AS startDate, 
+               DATE_FORMAT(tor.end_date, '%Y-%m-%d') AS endDate,
                tor.days_requested AS daysRequested,
                tor.status, tor.attachment_url AS attachmentUrl,
                tor.created_at AS createdAt
@@ -58,7 +62,8 @@ router.get('/', auth, async (req, res) => {
     } else {
       query = `
         SELECT tor.id, lt.name AS type,
-               tor.start_date AS startDate, tor.end_date AS endDate,
+               DATE_FORMAT(tor.start_date, '%Y-%m-%d') AS startDate, 
+               DATE_FORMAT(tor.end_date, '%Y-%m-%d') AS endDate,
                tor.days_requested AS daysRequested,
                tor.status, tor.attachment_url AS attachmentUrl,
                tor.created_at AS createdAt
@@ -73,6 +78,45 @@ router.get('/', auth, async (req, res) => {
   } catch (err) {
     console.error('GET /timeoff:', err)
     res.status(500).json({ error: 'Failed to fetch time off requests.' })
+  }
+})
+
+// ─── GET /timeoff/:id ────────────────────────────────────────────────────────
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const [[tor]] = await pool.query(
+      `SELECT tor.id, e.id AS employeeId, e.name AS employee, e.department, 
+              e.mobile, u.email, u.login_id AS loginId,
+              lt.name AS type,
+              DATE_FORMAT(tor.start_date, '%Y-%m-%d') AS startDate, 
+              DATE_FORMAT(tor.end_date, '%Y-%m-%d') AS endDate,
+              tor.days_requested AS daysRequested,
+              tor.status, tor.attachment_url AS attachmentUrl,
+              tor.created_at AS createdAt
+       FROM time_off_requests tor
+       JOIN employees e ON e.id = tor.employee_id
+       JOIN leave_types lt ON lt.id = tor.leave_type_id
+       JOIN users u ON u.id = e.user_id
+       WHERE tor.id = ? AND u.company_id = ?`,
+      [req.params.id, req.user.companyId]
+    )
+    if (!tor) return res.status(404).json({ error: 'Request not found.' })
+
+    // Fetch employee leave allocations for context
+    const [allocRows] = await pool.query(
+      `SELECT lt.name, la.total_days AS totalDays, la.used_days AS usedDays,
+              (la.total_days - la.used_days) AS remaining
+       FROM leave_allocations la
+       JOIN leave_types lt ON lt.id = la.leave_type_id
+       WHERE la.employee_id = ?`,
+      [tor.employeeId]
+    )
+    tor.allocations = allocRows
+
+    res.json(tor)
+  } catch (err) {
+    console.error('GET /timeoff/:id:', err)
+    res.status(500).json({ error: 'Failed to fetch request details.' })
   }
 })
 
@@ -113,7 +157,6 @@ router.post(
     }
 
     try {
-      // Resolve leave_type_id
       const [[lt]] = await pool.query('SELECT id FROM leave_types WHERE name = ?', [type])
       if (!lt) return res.status(400).json({ error: 'Invalid leave type.' })
 
@@ -146,11 +189,10 @@ router.post(
 )
 
 // ─── PUT /timeoff/:id/status — admin approve/reject ─────────────────────────
-// § 7 — Only Admin/HR can approve/reject (SKILL.md §8)
 router.put(
   '/:id/status',
   auth,
-  requireRole('admin'),
+  requireRole(['admin', 'hr', 'hr_officer']),
   [
     body('status')
       .isIn(['Approved', 'Rejected'])

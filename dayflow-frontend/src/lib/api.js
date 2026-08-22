@@ -1,36 +1,36 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('df_token')
-
   const headers = {
-    ...options.headers,
+    ...(options.headers || {})
   }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
-  if (options.body && !(options.body instanceof FormData)) {
+  const isFormData = options.body instanceof FormData
+  if (!isFormData && options.body && typeof options.body === 'object') {
     headers['Content-Type'] = 'application/json'
     options.body = JSON.stringify(options.body)
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    headers,
+    headers
   })
 
-  let data
-  const contentType = response.headers.get('content-type')
-  if (contentType && contentType.includes('application/json')) {
-    data = await response.json()
-  } else {
-    data = await response.text()
-  }
+  const contentType = response.headers.get('content-type') || ''
+  const isJson = contentType.includes('application/json')
+  const data = isJson ? await response.json() : await response.text()
 
   if (!response.ok) {
-    const error = new Error((data && data.error) || data || response.statusText || 'Request failed')
+    const error = new Error(
+      (isJson && (data.error || data.message)) ||
+      response.statusText ||
+      `Request failed with status ${response.status}`
+    )
     error.status = response.status
     error.data = data
     throw error
@@ -40,10 +40,19 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
-  get: (url, options) => request(url, { ...options, method: 'GET' }),
-  post: (url, body, options) => request(url, { ...options, method: 'POST', body }),
-  put: (url, body, options) => request(url, { ...options, method: 'PUT', body }),
-  patch: (url, body, options) => request(url, { ...options, method: 'PATCH', body }),
-  delete: (url, options) => request(url, { ...options, method: 'DELETE' }),
-  postForm: (url, formData, options) => request(url, { ...options, method: 'POST', body: formData }),
+  get(endpoint, options = {}) {
+    return request(endpoint, { ...options, method: 'GET' })
+  },
+  post(endpoint, body, options = {}) {
+    return request(endpoint, { ...options, method: 'POST', body })
+  },
+  postForm(endpoint, formData, options = {}) {
+    return request(endpoint, { ...options, method: 'POST', body: formData })
+  },
+  put(endpoint, body, options = {}) {
+    return request(endpoint, { ...options, method: 'PUT', body })
+  },
+  delete(endpoint, options = {}) {
+    return request(endpoint, { ...options, method: 'DELETE' })
+  }
 }
