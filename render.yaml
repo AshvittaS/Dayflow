@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: dayflow-backend
+    runtime: node
+    rootDir: dayflow-backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        value: gateway01.ap-southeast-1.prod.aws.tidbcloud.com
+      - key: DB_PORT
+        value: 4000
+      - key: DB_USER
+        value: kSH4qHJFTjAigod.root
+      - key: DB_PASSWORD
+        value: GdJegd9ktj1GKo0U
+      - key: DB_NAME
+        value: dayflow
+      - key: DB_SSL
+        value: true
+      - key: JWT_SECRET
+        value: super_secret_production_key_dayflow_2026
+      - key: CLIENT_URL
+        value: "*"
+      - key: BCRYPT_ROUNDS
+        value: 10
