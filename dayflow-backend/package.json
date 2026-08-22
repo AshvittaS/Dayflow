@@ -2,6 +2,7 @@
   "name": "dayflow-backend",
   "version": "1.0.0",
   "description": "Dayflow HRMS REST API — Node.js + Express + MySQL",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",

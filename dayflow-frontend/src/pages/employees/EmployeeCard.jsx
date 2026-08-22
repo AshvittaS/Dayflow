@@ -20,8 +20,8 @@ export default function EmployeeCard({ employee, overrideStatus }) {
     'bg-pink-500/20 text-pink-300',
     'bg-amber-500/20 text-amber-300',
   ]
-  const colorClass =
-    avatarColors[parseInt(employee.id.replace(/\D/g, ''), 10) % avatarColors.length]
+  const idNum = parseInt(String(employee?.id || '0').replace(/\D/g, '') || '0', 10)
+  const colorClass = avatarColors[idNum % avatarColors.length]
 
   return (
     <button
