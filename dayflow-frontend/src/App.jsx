@@ -7,6 +7,7 @@ import EmployeesPage from './pages/employees/EmployeesPage.jsx'
 import ProfilePage from './pages/profile/ProfilePage.jsx'
 import AttendancePage from './pages/attendance/AttendancePage.jsx'
 import TimeOffPage from './pages/timeoff/TimeOffPage.jsx'
+import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 
 /** Redirects to /signin if not logged in */
 function ProtectedRoute({ children }) {
@@ -28,6 +29,7 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        <Route path="/admin"       element={<AdminDashboard />} />
         <Route path="/employees"   element={<EmployeesPage />} />
         <Route path="/profile"     element={<ProfilePage />} />
         <Route path="/profile/:id" element={<ProfilePage />} />

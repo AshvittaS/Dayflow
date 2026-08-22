@@ -10,6 +10,7 @@ import attendanceRoutes  from './routes/attendance.js'
 import timeoffRoutes     from './routes/timeoff.js'
 import allocationRoutes  from './routes/allocations.js'
 import salaryRoutes      from './routes/salary.js'
+import analyticsRoutes   from './routes/analytics.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -33,6 +34,7 @@ app.use('/attendance',            attendanceRoutes)
 app.use('/timeoff',               timeoffRoutes)
 app.use('/timeoff/allocations',   allocationRoutes)
 app.use('/salary',                salaryRoutes)
+app.use('/analytics',             analyticsRoutes)
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
