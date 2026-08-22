@@ -7,10 +7,10 @@ import { api } from '../lib/api.js'
  * Admin: pass employeeId to override whose records to fetch.
  */
 export function useAttendance(month = null, employeeId = null) {
-  const [records,  setRecords]  = useState([])
-  const [summary,  setSummary]  = useState({ daysPresent: 0, totalWorkingDays: 22, leavesTaken: 0 })
-  const [loading,  setLoading]  = useState(true)
-  const [error,    setError]    = useState(null)
+  const [records, setRecords] = useState([])
+  const [summary, setSummary] = useState({ daysPresent: 0, totalWorkingDays: 22, leavesTaken: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const monthStr = month || currentMonth()
 

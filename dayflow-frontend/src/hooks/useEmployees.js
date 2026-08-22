@@ -7,8 +7,8 @@ import { api } from '../lib/api.js'
  */
 export function useEmployees() {
   const [employees, setEmployees] = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const fetch_ = useCallback(async () => {
     setLoading(true)
@@ -32,8 +32,8 @@ export function useEmployees() {
  */
 export function useEmployee(id) {
   const [employee, setEmployee] = useState(null)
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const fetchEmp = useCallback(async () => {
     if (!id) { setLoading(false); return }
