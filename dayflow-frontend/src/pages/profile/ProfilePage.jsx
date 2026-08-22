@@ -12,12 +12,14 @@ import {
   Heart,
   Calendar,
   CreditCard,
-  Briefcase
+  Briefcase,
+  Edit3
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useEmployee } from '../../hooks/useEmployees.js'
 import StatusDot from '../../components/ui/StatusDot.jsx'
 import SalaryInfoTab from './SalaryInfoTab.jsx'
+import EditProfileModal from '../../components/modals/EditProfileModal.jsx'
 
 const ALL_TABS = ['Resume', 'Private Info', 'Salary Info']
 
@@ -26,12 +28,14 @@ export default function ProfilePage() {
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('Resume')
+  const [showEditModal, setShowEditModal] = useState(false)
 
   const isOwnProfile = !id || String(id) === String(currentUser?.employeeId)
   const empId = isOwnProfile ? currentUser?.employeeId : id
-  const { employee: viewedEmployee, loading, error } = useEmployee(empId)
+  const { employee: viewedEmployee, loading, error, refetch } = useEmployee(empId)
 
-  const isAdmin = currentUser?.role === 'admin'
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'hr' || currentUser?.role === 'hr_officer'
+  const canEdit = isOwnProfile || isAdmin
   const visibleTabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => t !== 'Salary Info')
 
   if (loading) {
@@ -68,7 +72,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Top Navigation Bar: Back link ── */}
+      {/* ── Top Navigation Bar: Back link & Actions ── */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('/employees')}
@@ -78,12 +82,24 @@ export default function ProfilePage() {
           <span>Back to Directory</span>
         </button>
 
-        {!isOwnProfile && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EAEAEC] bg-white px-3 py-1 text-[11px] font-semibold text-[#6B6B76] shadow-subtle">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#9AA4AD]" />
-            View-only Mode
-          </span>
-        )}
+        <div className="flex items-center gap-2.5">
+          {canEdit && (
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#EAEAEC] bg-white px-3.5 py-1.5 text-xs font-bold text-[#1A1A1F] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] hover:border-[#5B4FE9]/40 shadow-subtle transition"
+            >
+              <Edit3 className="h-3.5 w-3.5" />
+              <span>{isOwnProfile ? 'Edit Profile' : 'Edit Employee'}</span>
+            </button>
+          )}
+
+          {!isOwnProfile && !isAdmin && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#EAEAEC] bg-white px-3 py-1 text-[11px] font-semibold text-[#6B6B76] shadow-subtle">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#9AA4AD]" />
+              View-only Mode
+            </span>
+          )}
+        </div>
       </div>
 
       {/* ── Asymmetric Two-Column Profile Structure ── */}
@@ -317,6 +333,17 @@ export default function ProfilePage() {
           {activeTab === 'Salary Info' && isAdmin && <SalaryInfoTab employeeId={empId} />}
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <EditProfileModal
+          employee={viewedEmployee}
+          isAdmin={isAdmin}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={refetch}
+          onDeleted={() => navigate('/employees')}
+        />
+      )}
     </div>
   )
 }

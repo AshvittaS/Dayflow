@@ -7,12 +7,14 @@ import {
   Plane,
   Sparkles,
   Search,
-  Filter
+  Filter,
+  UserPlus
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useEmployees } from '../../hooks/useEmployees.js'
 import { checkIn, checkOut } from '../../hooks/useAttendance.js'
 import EmployeeCard from './EmployeeCard.jsx'
+import AddEmployeeModal from '../../components/modals/AddEmployeeModal.jsx'
 
 export default function EmployeesPage() {
   const { user } = useAuth()
@@ -23,6 +25,9 @@ export default function EmployeesPage() {
   const [checkInLoading, setCheckInLoading] = useState(false)
   const [checkInError, setCheckInError] = useState('')
   const [highlightedId, setHighlightedId] = useState(null)
+  const [showAddModal, setShowAddModal] = useState(false)
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'hr' || user?.role === 'hr_officer'
 
   // Listen to consolidated top command search
   useEffect(() => {
@@ -105,13 +110,25 @@ export default function EmployeesPage() {
   return (
     <div className="space-y-6">
       {/* ── 1. Page Header ── */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#1A1A1F]">
-          Employees Directory
-        </h1>
-        <p className="text-xs font-normal tracking-wide text-[#6B6B76]">
-          Real-time organizational headcount, attendance metrics, and talent directory
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1A1A1F]">
+            Employees Directory
+          </h1>
+          <p className="text-xs font-normal tracking-wide text-[#6B6B76]">
+            Real-time organizational headcount, attendance metrics, and talent directory
+          </p>
+        </div>
+
+        {isAdmin && (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#5B4FE9] px-4 py-2.5 text-xs font-bold text-white shadow-[0_4px_12px_rgba(91,79,233,0.3)] hover:bg-[#4A3EC8] transition-all self-start sm:self-auto shrink-0"
+          >
+            <UserPlus className="h-4 w-4" />
+            <span>Add Employee</span>
+          </button>
+        )}
       </div>
 
       {/* ── 2. Team Pulse Strip (Live Roll-Call) ── */}
@@ -369,6 +386,14 @@ export default function EmployeesPage() {
           )}
         </div>
       </div>
+
+      {/* Add Employee Modal */}
+      {showAddModal && (
+        <AddEmployeeModal
+          onClose={() => setShowAddModal(false)}
+          onCreated={refetch}
+        />
+      )}
     </div>
   )
 }

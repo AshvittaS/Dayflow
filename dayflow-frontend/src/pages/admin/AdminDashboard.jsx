@@ -9,15 +9,18 @@ import {
   Check,
   X,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  Eye
 } from 'lucide-react'
 import { useAnalytics } from '../../hooks/useAnalytics.js'
 import { useTimeOff, reviewRequest } from '../../hooks/useTimeOff.js'
+import LeaveDetailsModal from '../../components/modals/LeaveDetailsModal.jsx'
 
 export default function AdminDashboard() {
   const { overview, trends, departments, loading, error, refetch: refetchAnalytics } = useAnalytics()
   const { requests, refetch: refetchTimeOff } = useTimeOff('Pending')
   const [actionLoadingId, setActionLoadingId] = useState(null)
+  const [selectedRequest, setSelectedRequest] = useState(null)
 
   const pendingRequests = requests.filter((r) => r.status === 'Pending')
 
@@ -303,24 +306,13 @@ export default function AdminDashboard() {
                       {req.daysRequested}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          disabled={actionLoadingId === req.id}
-                          onClick={() => handleTriage(req.id, 'Approved')}
-                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-50"
-                        >
-                          <Check className="h-3 w-3" />
-                          Approve
-                        </button>
-                        <button
-                          disabled={actionLoadingId === req.id}
-                          onClick={() => handleTriage(req.id, 'Rejected')}
-                          className="inline-flex items-center gap-1 rounded-lg bg-rose-50 border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition disabled:opacity-50"
-                        >
-                          <X className="h-3 w-3" />
-                          Reject
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => setSelectedRequest(req)}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#EAEAEC] bg-white px-3 py-1.5 text-xs font-bold text-[#1A1A1F] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] hover:border-[#5B4FE9]/40 shadow-subtle transition"
+                      >
+                        <Eye className="h-3.5 w-3.5 text-[#5B4FE9]" />
+                        <span>Evaluate Request</span>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -329,6 +321,17 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Leave Evaluation Modal */}
+      {selectedRequest && (
+        <LeaveDetailsModal
+          request={selectedRequest}
+          onReview={async (id, status) => {
+            await handleTriage(id, status)
+          }}
+          onClose={() => setSelectedRequest(null)}
+        />
+      )}
     </div>
   )
 }
