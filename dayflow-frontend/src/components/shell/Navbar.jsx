@@ -4,16 +4,19 @@ import { Bell } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import AvatarMenu from './AvatarMenu.jsx'
 
-const links = [
-  { to: '/employees', label: 'Employees' },
-  { to: '/attendance', label: 'Attendance' },
-  { to: '/timeoff', label: 'Time Off' }
-]
-
 export default function Navbar() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [userStatus, setUserStatus] = useState(user?.status || 'absent')
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'hr' || user?.role === 'hr_officer'
+
+  const links = [
+    ...(isAdmin ? [{ to: '/admin', label: 'Analytics' }] : []),
+    { to: '/employees', label: 'Employees' },
+    { to: '/attendance', label: 'Attendance' },
+    { to: '/timeoff', label: 'Time Off' }
+  ]
 
   useEffect(() => {
     if (user?.status) setUserStatus(user.status)
