@@ -54,49 +54,49 @@ export default function EmployeesPage() {
   const absentCount = totalEmployees - presentCount - leaveCount
 
   return (
-    <div className="space-y-6">
-      {/* ── Page Header & Top Controls ── */}
+    <div className="space-y-7">
+      {/* ── Page Header & Check-In Control ── */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1A1A1F]">Employees</h1>
-          <p className="mt-1 text-xs text-[#6B6B76]">
-            Organizational directory and live team presence
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1A1A1F]">Employees</h1>
+          <p className="mt-1 text-xs font-normal tracking-wide text-[#6B6B76]">
+            Organizational directory & live team presence status
           </p>
         </div>
 
-        {/* Check In / Check Out Control for Logged-In User */}
+        {/* Unified Cohesive Check In / Check Out Widget */}
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-3 self-start md:self-auto rounded-xl border border-[#EAEAEC] bg-white px-4 py-2.5 shadow-subtle">
-            <div className="flex items-center gap-2.5">
-              <span className="relative flex h-2.5 w-2.5">
+          <div className="flex items-center gap-4 self-start md:self-auto rounded-2xl border border-[#EAEAEC] bg-white p-2 pl-4 shadow-subtle">
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-3 w-3">
                 {checkedIn && (
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#10B981] opacity-75" />
                 )}
                 <span
-                  className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
-                    checkedIn ? 'bg-[#10B981]' : 'bg-[#92929D]'
+                  className={`relative inline-flex h-3 w-3 rounded-full ${
+                    checkedIn ? 'bg-[#10B981]' : 'bg-[#9AA4AD]'
                   }`}
                 />
               </span>
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#1A1A1F]">
+                <span className="text-xs font-bold text-[#1A1A1F] leading-tight">
                   {checkedIn ? `Checked In` : 'Not checked in'}
                 </span>
-                <span className="text-[11px] text-[#6B6B76]">
-                  {user?.name ? `${user.name}` : 'Start your workday'}
+                <span className="text-[11px] font-medium text-[#6B6B76]">
+                  {user?.name ? `${user.name}` : 'Ready to start workday'}
                 </span>
               </div>
             </div>
 
-            <div className="h-6 w-px bg-[#EAEAEC]" />
+            <div className="h-8 w-px bg-[#EAEAEC]" />
 
             <button
               onClick={handleCheckInOut}
               disabled={checkInLoading}
-              className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold shadow-sm transition-all disabled:opacity-60 ${
+              className={`rounded-xl px-4 py-2 text-xs font-bold shadow-sm transition-all duration-150 disabled:opacity-60 ${
                 checkedIn
                   ? 'border border-[#EAEAEC] bg-[#F8F9FA] text-[#1A1A1F] hover:bg-[#F1F1F4]'
-                  : 'bg-[#5B4FE9] text-white hover:bg-[#4A3EC8]'
+                  : 'bg-[#5B4FE9] text-white hover:bg-[#4A3EC8] shadow-[0_2px_8px_rgba(91,79,233,0.3)]'
               }`}
             >
               {checkInLoading ? '…' : checkedIn ? 'Check Out' : 'Check In'}
@@ -106,71 +106,71 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      {/* ── Presence Summary Metrics ── */}
+      {/* ── Presence Summary Metrics Cards with Semantic Gradients ── */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {/* Total Staff */}
-        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-gradient-to-b from-[#5B4FE9]/[0.035] to-white p-5 shadow-subtle transition-all duration-200 hover:-translate-y-0.5 hover:border-[#5B4FE9]/35 hover:shadow-cardHover">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#5B4FE9]/10 text-[#5B4FE9]">
-            <Users className="h-5 w-5" />
+            <Users className="h-4.5 w-4.5" strokeWidth={2.2} />
           </div>
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Total Staff</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-[#1A1A1F]">{totalEmployees}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B6B76]">Total Staff</p>
+            <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#1A1A1F]">{totalEmployees}</p>
           </div>
         </div>
 
         {/* Present */}
-        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-gradient-to-b from-[#10B981]/[0.045] to-white p-5 shadow-subtle transition-all duration-200 hover:-translate-y-0.5 hover:border-[#10B981]/35 hover:shadow-cardHover">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#ECFDF5] text-[#059669]">
-            <CheckCircle2 className="h-5 w-5" />
+            <CheckCircle2 className="h-4.5 w-4.5" strokeWidth={2.2} />
           </div>
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Present</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-[#059669]">{presentCount}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B6B76]">Present</p>
+            <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#059669]">{presentCount}</p>
           </div>
         </div>
 
         {/* On Leave */}
-        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-gradient-to-b from-[#2563EB]/[0.045] to-white p-5 shadow-subtle transition-all duration-200 hover:-translate-y-0.5 hover:border-[#2563EB]/35 hover:shadow-cardHover">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EFF6FF] text-[#2563EB]">
-            <CalendarOff className="h-5 w-5" />
+            <CalendarOff className="h-4.5 w-4.5" strokeWidth={2.2} />
           </div>
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">On Leave</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-[#2563EB]">{leaveCount}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B6B76]">On Leave</p>
+            <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#2563EB]">{leaveCount}</p>
           </div>
         </div>
 
         {/* Absent */}
-        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#EAEAEC] bg-gradient-to-b from-[#F59E0B]/[0.045] to-white p-5 shadow-subtle transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F59E0B]/35 hover:shadow-cardHover">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFBEB] text-[#D97706]">
-            <Clock className="h-5 w-5" />
+            <Clock className="h-4.5 w-4.5" strokeWidth={2.2} />
           </div>
           <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Absent</p>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-[#D97706]">{absentCount}</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B6B76]">Absent</p>
+            <p className="mt-1 text-3xl font-extrabold tracking-tight text-[#D97706]">{absentCount}</p>
           </div>
         </div>
       </div>
 
       {/* ── Search & Filter Controls ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Search input with live count */}
+      <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between pt-1">
+        {/* Search input with clean shadow and padding */}
         <div className="flex flex-1 items-center gap-3 max-w-md">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#92929D]" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9AA4AD]" />
             <input
               id="employee-search"
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by name, department, or login ID…"
-              className="w-full rounded-xl border border-[#EAEAEC] bg-white py-2 pl-9 pr-8 text-xs font-medium text-[#1A1A1F] placeholder-[#92929D] shadow-subtle outline-none focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/10"
+              className="w-full rounded-2xl border border-[#EAEAEC]/90 bg-white py-2.5 pl-10 pr-9 text-xs font-medium text-[#1A1A1F] placeholder-[#9AA4AD] shadow-[0_2px_8px_rgba(0,0,0,0.02)] outline-none transition-all focus:border-[#5B4FE9] focus:ring-4 focus:ring-[#5B4FE9]/10"
             />
             {query && (
               <button
                 onClick={() => setQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#92929D] hover:text-[#1A1A1F]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9AA4AD] hover:text-[#1A1A1F]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -179,15 +179,15 @@ export default function EmployeesPage() {
         </div>
 
         {/* Department Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {departments.map((dept) => (
             <button
               key={dept}
               onClick={() => setActiveDept(dept)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all duration-150 ${
                 activeDept === dept
-                  ? 'bg-[#5B4FE9] text-white shadow-sm'
-                  : 'border border-[#EAEAEC] bg-white text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]'
+                  ? 'bg-[#5B4FE9] text-white shadow-[0_2px_8px_rgba(91,79,233,0.3)]'
+                  : 'bg-[#F4F4F6] text-[#6B6B76] hover:bg-[#EAEAEC] hover:text-[#1A1A1F]'
               }`}
             >
               {dept}
@@ -208,7 +208,7 @@ export default function EmployeesPage() {
       )}
 
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-medium text-red-500">
           Failed to load employees: {error}
         </div>
       )}
@@ -216,10 +216,10 @@ export default function EmployeesPage() {
       {/* ── Employee Card Grid ── */}
       {!loading && !error && filtered.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#EAEAEC] bg-white py-20 text-center shadow-subtle">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F4F4F6] text-[#92929D]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F4F4F6] text-[#9AA4AD]">
             <Search className="h-6 w-6" />
           </div>
-          <h3 className="mt-3 text-sm font-semibold text-[#1A1A1F]">No employees found</h3>
+          <h3 className="mt-3 text-sm font-bold text-[#1A1A1F]">No employees found</h3>
           <p className="mt-1 text-xs text-[#6B6B76] max-w-sm">
             We couldn&apos;t find any employee matching &ldquo;{query}&rdquo;. Try searching for another name, role, or department.
           </p>
@@ -228,7 +228,7 @@ export default function EmployeesPage() {
               setQuery('')
               setActiveDept('All')
             }}
-            className="mt-4 rounded-lg bg-[#5B4FE9]/10 px-4 py-2 text-xs font-semibold text-[#5B4FE9] hover:bg-[#5B4FE9]/20"
+            className="mt-4 rounded-xl bg-[#5B4FE9]/10 px-4 py-2 text-xs font-bold text-[#5B4FE9] hover:bg-[#5B4FE9]/20"
           >
             Reset Filters
           </button>
