@@ -115,8 +115,8 @@ export default function EmployeesPage() {
       </div>
 
       {/* ── 2. Team Pulse Strip (Live Roll-Call) ── */}
-      <div className="rounded-2xl border border-[#EAEAEC] bg-white p-4 shadow-subtle">
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#F1F1F4]">
+      <div className="rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle min-h-[135px]">
+        <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#F1F1F4]">
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-[#1A1A1F]">
@@ -131,8 +131,8 @@ export default function EmployeesPage() {
           </span>
         </div>
 
-        {/* Horizontal Avatar Roll Call */}
-        <div className="flex items-center gap-4 overflow-x-auto pb-1 scrollbar-none">
+        {/* Horizontal Avatar Roll Call - with ample vertical & horizontal padding so rings never clip */}
+        <div className="flex items-center gap-5 overflow-x-auto py-2.5 px-2 scrollbar-none">
           {employees.map((emp) => {
             const isSelf = String(emp.id) === String(user?.employeeId)
             const initials = emp.name
@@ -153,11 +153,11 @@ export default function EmployeesPage() {
                 key={emp.id}
                 onClick={() => handlePulseClick(emp.id)}
                 title={`${emp.name} (${emp.status})`}
-                className="group relative flex flex-col items-center gap-1.5 shrink-0 outline-none transition-transform hover:scale-110"
+                className="group relative flex flex-col items-center gap-1.5 shrink-0 outline-none p-1 transition-transform hover:scale-105"
               >
                 <div
-                  className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold shadow-sm ring-[2.5px] transition-all ${ringColor} ${
-                    isSelf ? 'ring-offset-2 ring-offset-[#5B4FE9]' : ''
+                  className={`flex h-11 w-11 items-center justify-center rounded-full text-xs font-bold shadow-sm ring-[3px] ring-offset-2 ring-offset-white transition-all ${ringColor} ${
+                    isSelf ? 'ring-offset-[#5B4FE9]/30' : ''
                   }`}
                 >
                   {initials}
