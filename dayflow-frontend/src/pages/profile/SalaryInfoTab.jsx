@@ -8,14 +8,14 @@ export default function SalaryInfoTab({ employeeId }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#5B4FE9] border-t-transparent" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
         Failed to load salary structure: {error}
       </div>
     )
@@ -23,8 +23,8 @@ export default function SalaryInfoTab({ employeeId }) {
 
   if (!s) {
     return (
-      <div className="rounded-xl border border-dashed border-base-border py-16 text-center">
-        <p className="text-sm text-slate-400">No salary structure configured for this employee yet.</p>
+      <div className="rounded-xl border border-dashed border-[#EAEAEC] bg-white py-16 text-center shadow-subtle">
+        <p className="text-xs font-semibold text-[#6B6B76]">No salary structure configured for this employee yet.</p>
       </div>
     )
   }
@@ -39,14 +39,14 @@ export default function SalaryInfoTab({ employeeId }) {
   return (
     <div className="space-y-6">
       {/* Admin Notice Banner */}
-      <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-300 shadow-subtle">
+      <div className="flex items-center justify-between rounded-xl border border-amber-200/80 bg-amber-50/70 px-4 py-3 text-xs text-amber-900 shadow-subtle">
         <div className="flex items-center gap-2.5">
-          <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0" />
+          <ShieldAlert className="h-4 w-4 text-amber-700 shrink-0" />
           <span className="font-medium">
             Confidential Payroll Record — Visible exclusively to HR Administrators. All compensation component amounts are auto-calculated from base wage percentages.
           </span>
         </div>
-        <span className="hidden sm:inline-block font-mono text-[10px] uppercase tracking-wider bg-amber-500/20 border border-amber-500/40 rounded px-2 py-0.5 text-amber-300 font-semibold">
+        <span className="hidden sm:inline-block font-mono text-[10px] uppercase tracking-wider bg-white/80 border border-amber-300 rounded px-2 py-0.5 text-amber-800 font-semibold">
           Admin View
         </span>
       </div>
@@ -70,22 +70,22 @@ export default function SalaryInfoTab({ employeeId }) {
       </div>
 
       {/* ── Salary Components Table ── */}
-      <div className="overflow-hidden rounded-2xl border border-base-border bg-base-card shadow-subtle">
-        <div className="border-b border-base-border bg-base-panel px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+        <div className="border-b border-[#EAEAEC] bg-[#FAFAFC] px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="text-sm font-bold text-white">Compensation Components</h3>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <h3 className="text-sm font-bold text-[#1A1A1F]">Compensation Components</h3>
+            <p className="mt-0.5 text-xs text-[#6B6B76]">
               Statutory breakdown calculated automatically from defined wage formulas
             </p>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400 bg-base-panel border border-base-border rounded-lg px-2.5 py-1 w-fit shadow-subtle">
-            <Lock className="h-3 w-3 text-accent" />
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#6B6B76] bg-white border border-[#EAEAEC] rounded-lg px-2.5 py-1 w-fit shadow-subtle">
+            <Lock className="h-3 w-3 text-[#5B4FE9]" />
             <span>Formula Locked</span>
           </div>
         </div>
 
         <table className="w-full text-xs">
-          <thead className="border-b border-base-border bg-base-panel text-left text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <thead className="border-b border-[#EAEAEC] bg-[#F8F9FA] text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">
             <tr>
               <th className="px-6 py-3.5">Component</th>
               <th className="px-6 py-3.5 text-right">Calculation Rule</th>
@@ -93,27 +93,27 @@ export default function SalaryInfoTab({ employeeId }) {
               <th className="px-6 py-3.5 text-right">Amount (₹ / Month)</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-base-border">
+          <tbody className="divide-y divide-[#F1F1F4]">
             {s.components?.map((c, i) => (
               <tr
                 key={c.label}
-                className={`transition-colors hover:bg-base-panel/70 ${
-                  i % 2 === 0 ? 'bg-base-card' : 'bg-base-panel/40'
+                className={`transition-colors hover:bg-[#F9F9FB] ${
+                  i % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFC]'
                 }`}
               >
-                <td className="px-6 py-3.5 font-medium text-white">
+                <td className="px-6 py-3.5 font-medium text-[#1A1A1F]">
                   {c.label}
                 </td>
-                <td className="px-6 py-3.5 text-right text-slate-400">
+                <td className="px-6 py-3.5 text-right text-[#6B6B76]">
                   {c.label === 'House Rent Allowance' ? '50% of Basic' : 'Base Wage Ratio'}
                 </td>
-                <td className="px-6 py-3.5 text-right font-mono font-medium text-slate-300">
+                <td className="px-6 py-3.5 text-right font-mono font-medium text-[#1A1A1F]">
                   {c.percent}%
                 </td>
                 <td className="px-6 py-3.5 text-right">
                   <div className="flex items-center justify-end gap-1.5">
-                    <Lock className="h-3 w-3 text-slate-500" title="Auto-calculated amount" />
-                    <span className="font-mono font-semibold text-white">
+                    <Lock className="h-3 w-3 text-[#92929D]" title="Auto-calculated amount" />
+                    <span className="font-mono font-semibold text-[#1A1A1F]">
                       ₹{Number(c.amount).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -122,15 +122,15 @@ export default function SalaryInfoTab({ employeeId }) {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-accent/30 bg-accent/5">
-              <td className="px-6 py-4 text-xs font-bold text-white">
+            <tr className="border-t-2 border-[#5B4FE9]/20 bg-[#5B4FE9]/5">
+              <td className="px-6 py-4 text-xs font-bold text-[#1A1A1F]">
                 Total Monthly Gross
               </td>
               <td />
-              <td className="px-6 py-4 text-right font-mono text-xs font-bold text-accent">
+              <td className="px-6 py-4 text-right font-mono text-xs font-bold text-[#5B4FE9]">
                 {totalPct}%
               </td>
-              <td className="px-6 py-4 text-right font-mono text-sm font-bold text-accent">
+              <td className="px-6 py-4 text-right font-mono text-sm font-bold text-[#5B4FE9]">
                 ₹{totalComponents.toLocaleString('en-IN')}
               </td>
             </tr>
@@ -141,34 +141,34 @@ export default function SalaryInfoTab({ employeeId }) {
       {/* ── PF & Statutory Deductions Grid ── */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* PF Contributions */}
-        <div className="rounded-2xl border border-base-border bg-base-card p-5 shadow-subtle">
-          <div className="flex items-center justify-between border-b border-base-border pb-3 mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex items-center justify-between border-b border-[#F1F1F4] pb-3 mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B76]">
               Provident Fund (PF) Contributions
             </h3>
-            <span className="font-mono text-[10px] text-accent bg-accent/15 px-2 py-0.5 rounded font-semibold">
+            <span className="font-mono text-[10px] text-[#5B4FE9] bg-[#5B4FE9]/10 px-2 py-0.5 rounded font-semibold">
               Statutory
             </span>
           </div>
 
           <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between py-1 border-b border-base-border">
-              <span className="text-slate-400">Employee Contribution</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#F8F9FA]">
+              <span className="text-[#6B6B76]">Employee Contribution</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-medium text-white">{s.pfEmployeePct}%</span>
-                <span className="text-slate-400">(₹{empPfAmt.toLocaleString('en-IN')})</span>
+                <span className="font-mono font-medium text-[#1A1A1F]">{s.pfEmployeePct}%</span>
+                <span className="text-[#92929D]">(₹{empPfAmt.toLocaleString('en-IN')})</span>
               </div>
             </div>
-            <div className="flex items-center justify-between py-1 border-b border-base-border">
-              <span className="text-slate-400">Employer Contribution</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#F8F9FA]">
+              <span className="text-[#6B6B76]">Employer Contribution</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-medium text-white">{s.pfEmployerPct}%</span>
-                <span className="text-slate-400">(₹{emplrPfAmt.toLocaleString('en-IN')})</span>
+                <span className="font-mono font-medium text-[#1A1A1F]">{s.pfEmployerPct}%</span>
+                <span className="text-[#92929D]">(₹{emplrPfAmt.toLocaleString('en-IN')})</span>
               </div>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <span className="font-semibold text-white">Total PF Monthly Remittance</span>
-              <span className="font-mono font-bold text-accent">
+              <span className="font-semibold text-[#1A1A1F]">Total PF Monthly Remittance</span>
+              <span className="font-mono font-bold text-[#5B4FE9]">
                 ₹{(empPfAmt + emplrPfAmt).toLocaleString('en-IN')}
               </span>
             </div>
@@ -176,28 +176,28 @@ export default function SalaryInfoTab({ employeeId }) {
         </div>
 
         {/* Tax Deductions */}
-        <div className="rounded-2xl border border-base-border bg-base-card p-5 shadow-subtle">
-          <div className="flex items-center justify-between border-b border-base-border pb-3 mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-2xl border border-[#EAEAEC] bg-white p-5 shadow-subtle">
+          <div className="flex items-center justify-between border-b border-[#F1F1F4] pb-3 mb-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B6B76]">
               Tax Deductions
             </h3>
-            <span className="font-mono text-[10px] text-slate-400 bg-base-panel border border-base-border px-2 py-0.5 rounded font-semibold">
+            <span className="font-mono text-[10px] text-[#6B6B76] bg-[#F8F9FA] border border-[#EAEAEC] px-2 py-0.5 rounded font-semibold">
               State Tax
             </span>
           </div>
 
           <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between py-1 border-b border-base-border">
-              <span className="text-slate-400">Professional Tax (PT)</span>
-              <span className="font-mono font-semibold text-white">₹{ptTax} / month</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#F8F9FA]">
+              <span className="text-[#6B6B76]">Professional Tax (PT)</span>
+              <span className="font-mono font-semibold text-[#1A1A1F]">₹{ptTax} / month</span>
             </div>
-            <div className="flex items-center justify-between py-1 border-b border-base-border">
-              <span className="text-slate-400">Annualized PT Deduction</span>
-              <span className="font-mono font-medium text-slate-400">₹{(ptTax * 12).toLocaleString('en-IN')} / year</span>
+            <div className="flex items-center justify-between py-1 border-b border-[#F8F9FA]">
+              <span className="text-[#6B6B76]">Annualized PT Deduction</span>
+              <span className="font-mono font-medium text-[#6B6B76]">₹{(ptTax * 12).toLocaleString('en-IN')} / year</span>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <span className="font-semibold text-white">Total Monthly Deductions</span>
-              <span className="font-mono font-bold text-white">
+              <span className="font-semibold text-[#1A1A1F]">Total Monthly Deductions</span>
+              <span className="font-mono font-bold text-[#1A1A1F]">
                 ₹{(empPfAmt + ptTax).toLocaleString('en-IN')}
               </span>
             </div>
@@ -210,9 +210,9 @@ export default function SalaryInfoTab({ employeeId }) {
 
 function HeaderTile({ label, value, accent }) {
   return (
-    <div className="rounded-xl border border-base-border bg-base-card p-4 shadow-subtle">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-      <p className={`mt-1 font-mono text-base font-bold ${accent ? 'text-accent' : 'text-white'}`}>
+    <div className="rounded-xl border border-[#EAEAEC] bg-white p-4 shadow-subtle">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">{label}</p>
+      <p className={`mt-1 font-mono text-base font-bold ${accent ? 'text-[#5B4FE9]' : 'text-[#1A1A1F]'}`}>
         {value}
       </p>
     </div>

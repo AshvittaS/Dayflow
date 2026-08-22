@@ -4,69 +4,52 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #0d0d10;
-    color: #f8fafc;
-    overflow-x: hidden;
-  }
+* {
+  box-sizing: border-box;
 }
 
-/* Custom delicate scrollbar */
+body {
+  font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #F8F9FA;
+  color: #1A1A1F;
+}
+
+/* Custom delicate scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #12141a;
+  background: #F1F1F4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a35;
-  border-radius: 9999px;
+  background: #D5D5DC;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+  background: #5B4FE9;
 }
 
-/* Smooth color/border/transform transitions on interactive elements */
+/* Smooth color/border/shadow transitions */
 input, select, button, a {
-  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  transition-duration: 200ms;
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
-/* Accessible focus ring */
+/* Date input calendar picker */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Consistent focus ring */
 :focus-visible {
-  outline: 2px solid #8b5cf6;
+  outline: 2px solid #5B4FE9;
   outline-offset: 2px;
-}
-
-/* Glassmorphism panel styling */
-.glass-panel {
-  background: rgba(18, 20, 26, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.glass-card {
-  background: rgba(24, 26, 34, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glow-ambient {
-  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.12) 0%, rgba(245, 158, 11, 0.04) 45%, transparent 70%);
-}
-
-.glow-cadence {
-  background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.18) 0%, rgba(16, 185, 129, 0.06) 50%, transparent 80%);
 }

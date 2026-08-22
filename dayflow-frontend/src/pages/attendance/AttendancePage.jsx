@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { Calendar, CheckCircle2, Clock, CalendarOff } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useAttendance } from '../../hooks/useAttendance.js'
-import { employees as empList } from '../../data/mockData.js' // only for admin name list
+import { useEmployees } from '../../hooks/useEmployees.js'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -29,91 +30,146 @@ function currentMonth() {
 export default function AttendancePage() {
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
-  const [selectedEmpId, setSelectedEmpId] = useState(null) // null = self
+  const [selectedEmpId, setSelectedEmpId] = useState(null)
   const [month, setMonth] = useState(currentMonth())
 
+  const { employees } = useEmployees()
   const { records, summary, loading, error } = useAttendance(
     month,
     isAdmin && selectedEmpId ? selectedEmpId : null
   )
 
   return (
-    <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold text-white">Attendance</h1>
-          <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-            className="mt-1 rounded-lg border border-base-border bg-base-card px-3 py-1 text-xs text-white outline-none focus:border-accent" />
+          <h1 className="text-2xl font-bold tracking-tight text-[#1A1A1F]">Attendance</h1>
+          <p className="mt-1 text-xs text-[#6B6B76]">
+            Monthly logs and daily work hour audit
+          </p>
         </div>
 
-        {isAdmin && (
-          <div className="flex items-center gap-2">
-            <label htmlFor="emp-select" className="text-xs text-slate-400">Viewing:</label>
-            <select id="emp-select" value={selectedEmpId || ''} onChange={e => setSelectedEmpId(e.target.value || null)}
-              className="rounded-lg border border-base-border bg-base-card px-3 py-1.5 text-sm text-white outline-none focus:border-accent">
-              <option value="">Myself</option>
-              {empList.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-            </select>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="rounded-xl border border-[#EAEAEC] bg-white px-3.5 py-2 text-xs font-semibold text-[#1A1A1F] shadow-subtle outline-none focus:border-[#5B4FE9]"
+          />
+
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="emp-select" className="text-xs font-medium text-[#6B6B76]">
+                Employee:
+              </label>
+              <select
+                id="emp-select"
+                value={selectedEmpId || ''}
+                onChange={(e) => setSelectedEmpId(e.target.value || null)}
+                className="rounded-xl border border-[#EAEAEC] bg-white px-3 py-2 text-xs font-semibold text-[#1A1A1F] shadow-subtle outline-none focus:border-[#5B4FE9]"
+              >
+                <option value="">Myself ({user?.name})</option>
+                {employees.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name} ({e.department})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Summary stats */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
-        <Stat label="Days Present"  value={summary.daysPresent}      icon="✅" color="text-status-present" />
-        <Stat label="Leaves Taken"  value={summary.leavesTaken}      icon="🏖️" color="text-status-leave" />
-        <Stat label="Working Days"  value={summary.totalWorkingDays} icon="📅" color="text-slate-300" />
+      {/* ── Summary Stats ── */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Stat
+          label="Days Present"
+          value={summary.daysPresent}
+          icon={CheckCircle2}
+          color="text-[#059669]"
+          bg="bg-[#ECFDF5]"
+        />
+        <Stat
+          label="Leaves Taken"
+          value={summary.leavesTaken}
+          icon={CalendarOff}
+          color="text-[#2563EB]"
+          bg="bg-[#EFF6FF]"
+        />
+        <Stat
+          label="Total Working Days"
+          value={summary.totalWorkingDays}
+          icon={Calendar}
+          color="text-[#5B4FE9]"
+          bg="bg-[#5B4FE9]/10"
+        />
       </div>
 
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#5B4FE9] border-t-transparent" />
         </div>
       )}
 
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-600">
           Failed to load attendance: {error}
         </div>
       )}
 
       {!loading && !error && records.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-base-border py-20 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="mb-3 h-10 w-10 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <p className="text-sm font-medium text-slate-400">No attendance records for this period</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#EAEAEC] bg-white py-20 text-center shadow-subtle">
+          <Clock className="h-10 w-10 text-[#92929D]" />
+          <p className="mt-3 text-sm font-semibold text-[#1A1A1F]">No attendance records for this period</p>
+          <p className="mt-1 text-xs text-[#6B6B76]">Try selecting a different month or checking in today.</p>
         </div>
       )}
 
       {!loading && !error && records.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-base-border">
-          <table className="w-full text-sm">
-            <thead className="bg-base-panel text-left text-xs text-slate-500">
+        <div className="overflow-hidden rounded-2xl border border-[#EAEAEC] bg-white shadow-subtle">
+          <table className="w-full text-xs">
+            <thead className="border-b border-[#EAEAEC] bg-[#F8F9FA] text-left text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">
               <tr>
-                <th className="px-4 py-3">Day</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Check In</th>
-                <th className="px-4 py-3">Check Out</th>
-                <th className="px-4 py-3">Work Hours</th>
-                <th className="px-4 py-3">Extra Hours</th>
+                <th className="px-6 py-3.5">Day</th>
+                <th className="px-6 py-3.5">Date</th>
+                <th className="px-6 py-3.5">Check In</th>
+                <th className="px-6 py-3.5">Check Out</th>
+                <th className="px-6 py-3.5">Work Hours</th>
+                <th className="px-6 py-3.5">Extra Hours</th>
               </tr>
             </thead>
-            <tbody>
-              {records.map(r => {
+            <tbody className="divide-y divide-[#F1F1F4]">
+              {records.map((r, i) => {
                 const full = isFullDay(r.workHours)
                 const dateStr = r.date?.split('T')[0] || r.date
                 return (
-                  <tr key={dateStr} className="border-t border-base-border bg-base-card hover:bg-base-panel/60 transition-colors">
-                    <td className="px-4 py-3 text-slate-500">{dayName(dateStr)}</td>
-                    <td className="px-4 py-3 font-medium text-white">{formatDate(dateStr)}</td>
-                    <td className="px-4 py-3 text-slate-300">{r.checkIn ?? '—'}</td>
-                    <td className="px-4 py-3 text-slate-300">{r.checkOut ?? <span className="text-status-absent">Pending</span>}</td>
-                    <td className="px-4 py-3">
-                      {r.workHours
-                        ? <span className={`font-semibold ${full ? 'text-status-present' : 'text-status-absent'}`}>{r.workHours}</span>
-                        : <span className="text-slate-600">—</span>
-                      }
+                  <tr
+                    key={dateStr}
+                    className={`transition-colors hover:bg-[#F9F9FB] ${
+                      i % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFC]'
+                    }`}
+                  >
+                    <td className="px-6 py-3.5 font-medium text-[#6B6B76]">{dayName(dateStr)}</td>
+                    <td className="px-6 py-3.5 font-semibold text-[#1A1A1F]">{formatDate(dateStr)}</td>
+                    <td className="px-6 py-3.5 font-mono text-[#1A1A1F]">{r.checkIn ?? '—'}</td>
+                    <td className="px-6 py-3.5 font-mono text-[#1A1A1F]">
+                      {r.checkOut ?? <span className="font-sans font-medium text-[#D97706]">Pending</span>}
                     </td>
-                    <td className="px-4 py-3 text-slate-400">
+                    <td className="px-6 py-3.5">
+                      {r.workHours ? (
+                        <span
+                          className={`font-mono font-bold ${
+                            full ? 'text-[#059669]' : 'text-[#D97706]'
+                          }`}
+                        >
+                          {r.workHours}
+                        </span>
+                      ) : (
+                        <span className="text-[#92929D]">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3.5 font-mono text-[#6B6B76]">
                       {r.extraHours && r.extraHours !== '00:00' ? r.extraHours : '—'}
                     </td>
                   </tr>
@@ -127,12 +183,16 @@ export default function AttendancePage() {
   )
 }
 
-function Stat({ label, value, icon, color }) {
+function Stat({ label, value, icon: Icon, color, bg }) {
   return (
-    <div className="rounded-xl border border-base-border bg-base-card p-5">
-      <div className="mb-2 text-lg">{icon}</div>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      <p className="mt-0.5 text-xs text-slate-500">{label}</p>
+    <div className="flex items-center gap-3 rounded-2xl border border-[#EAEAEC] bg-white p-4 shadow-subtle">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${bg} ${color}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6B6B76]">{label}</p>
+        <p className={`text-xl font-bold ${color}`}>{value}</p>
+      </div>
     </div>
   )
 }

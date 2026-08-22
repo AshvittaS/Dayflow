@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { X, Upload, FileText, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { timeOffTypes } from '../../data/mockData.js'
 import { submitTimeOff } from '../../hooks/useTimeOff.js'
@@ -59,85 +60,93 @@ export default function TimeOffRequestModal({ onClose, onSubmitted }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
       role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div ref={panelRef} className="w-full max-w-sm rounded-2xl border border-base-border bg-base-panel shadow-2xl">
-        <div className="flex items-center justify-between border-b border-base-border px-6 py-4">
-          <h2 id="modal-title" className="text-sm font-semibold text-white">Time Off Request</h2>
+      <div ref={panelRef} className="w-full max-w-md rounded-2xl border border-[#EAEAEC] bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between border-b border-[#EAEAEC] px-6 py-4">
+          <div>
+            <h2 id="modal-title" className="text-sm font-bold text-[#1A1A1F]">Request Time Off</h2>
+            <p className="text-[11px] text-[#6B6B76]">Submit a leave request for admin evaluation</p>
+          </div>
           <button ref={firstFocusableRef} onClick={onClose} aria-label="Close modal"
-            className="rounded-full p-1 text-slate-400 hover:bg-base-card hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            className="rounded-lg p-1 text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]">
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5" noValidate>
-          {apiError && <div role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400">{apiError}</div>}
+          {apiError && (
+            <div role="alert" className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{apiError}</span>
+            </div>
+          )}
 
           <Field label="Employee">
-            <input disabled value={user?.name || ''} className="w-full rounded-lg border border-base-border bg-base-bg px-3 py-2 text-sm text-slate-500 cursor-not-allowed" />
+            <input disabled value={user?.name || ''} className="w-full rounded-xl border border-[#EAEAEC] bg-[#F8F9FA] px-3.5 py-2.5 text-xs font-semibold text-[#6B6B76] cursor-not-allowed" />
           </Field>
 
-          <Field label="Time off Type">
-            <select value={type} onChange={e => setType(e.target.value)}
-              className="w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white outline-none focus:border-accent focus:ring-1 focus:ring-accent/30">
-              {timeOffTypes.map(t => <option key={t} value={t}>{t}</option>)}
+          <Field label="Time Off Type">
+            <select value={type} onChange={(e) => setType(e.target.value)}
+              className="w-full rounded-xl border border-[#EAEAEC] bg-white px-3.5 py-2.5 text-xs font-semibold text-[#1A1A1F] outline-none focus:border-[#5B4FE9] focus:ring-2 focus:ring-[#5B4FE9]/10">
+              {timeOffTypes.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </Field>
 
           <div>
-            <p className="mb-1.5 text-xs font-medium text-slate-400">Validity Period</p>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label htmlFor="start-date" className="mb-1 block text-xs text-slate-500">From</label>
-                <input id="start-date" type="date" required value={start} onChange={e => setStart(e.target.value)}
-                  className="w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">Validity Period</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="start-date" className="mb-1 block text-[11px] text-[#6B6B76]">From</label>
+                <input id="start-date" type="date" required value={start} onChange={(e) => setStart(e.target.value)}
+                  className="w-full rounded-xl border border-[#EAEAEC] bg-white px-3 py-2 text-xs font-medium text-[#1A1A1F] outline-none focus:border-[#5B4FE9]" />
               </div>
-              <div className="flex-1">
-                <label htmlFor="end-date" className="mb-1 block text-xs text-slate-500">To</label>
-                <input id="end-date" type="date" required min={start} value={end} onChange={e => setEnd(e.target.value)}
-                  className="w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+              <div>
+                <label htmlFor="end-date" className="mb-1 block text-[11px] text-[#6B6B76]">To</label>
+                <input id="end-date" type="date" required min={start} value={end} onChange={(e) => setEnd(e.target.value)}
+                  className="w-full rounded-xl border border-[#EAEAEC] bg-white px-3 py-2 text-xs font-medium text-[#1A1A1F] outline-none focus:border-[#5B4FE9]" />
               </div>
             </div>
           </div>
 
           <Field label="Days Requested">
-            <input type="number" min="1" required value={daysRequested} onChange={e => setDays(e.target.value)}
+            <input type="number" min="1" required value={daysRequested} onChange={(e) => setDays(e.target.value)}
               placeholder="Auto-calculated from dates"
-              className="w-full rounded-lg border border-base-border bg-base-card px-3 py-2 text-sm text-white placeholder-slate-600 outline-none focus:border-accent" />
+              className="w-full rounded-xl border border-[#EAEAEC] bg-white px-3.5 py-2.5 font-mono text-xs font-semibold text-[#1A1A1F] placeholder-[#92929D] outline-none focus:border-[#5B4FE9]" />
           </Field>
 
           {needsAttachment && (
             <div>
-              <label htmlFor="attachment" className="mb-1.5 block text-xs font-medium text-slate-400">
-                Attachment<span className="ml-1 text-red-400">*</span>
-                <span className="ml-1 text-slate-600">(sick leave certificate)</span>
+              <label htmlFor="attachment" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">
+                Medical Certificate<span className="ml-1 text-rose-500">*</span>
               </label>
-              <div className={`rounded-lg border-2 border-dashed p-4 text-center ${attachError ? 'border-red-500/50' : 'border-base-border hover:border-accent/40'}`}>
+              <div className={`rounded-xl border-2 border-dashed p-4 text-center ${attachError ? 'border-rose-300 bg-rose-50/50' : 'border-[#EAEAEC] hover:border-[#5B4FE9]/50'}`}>
                 <input id="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={e => { setAttachment(e.target.files?.[0] ?? null); setAttachError('') }}
+                  onChange={(e) => { setAttachment(e.target.files?.[0] ?? null); setAttachError('') }}
                   className="hidden" />
-                <label htmlFor="attachment" className="cursor-pointer text-xs text-slate-400 hover:text-accent">
-                  {attachment
-                    ? <span className="text-accent">{attachment.name}</span>
-                    : <>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-1.5 h-5 w-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Click to upload PDF, JPG, or PNG
-                      </>
-                  }
+                <label htmlFor="attachment" className="cursor-pointer text-xs text-[#6B6B76] hover:text-[#5B4FE9]">
+                  {attachment ? (
+                    <span className="font-semibold text-[#5B4FE9]">{attachment.name}</span>
+                  ) : (
+                    <>
+                      <Upload className="mx-auto mb-1.5 h-5 w-5 text-[#92929D]" />
+                      <span>Click to upload PDF, JPG, or PNG</span>
+                    </>
+                  )}
                 </label>
               </div>
-              {attachError && <p role="alert" className="mt-1 text-xs text-red-400">{attachError}</p>}
+              {attachError && <p role="alert" className="mt-1 text-xs text-rose-600">{attachError}</p>}
             </div>
           )}
 
-          <div className="flex justify-end gap-2 border-t border-base-border pt-4">
+          <div className="flex justify-end gap-2 border-t border-[#EAEAEC] pt-4">
             <button type="button" onClick={onClose}
-              className="rounded-lg border border-base-border px-4 py-2 text-xs font-medium text-slate-300 hover:bg-base-card">
+              className="rounded-xl border border-[#EAEAEC] bg-white px-4 py-2.5 text-xs font-semibold text-[#6B6B76] hover:bg-[#F4F4F6] hover:text-[#1A1A1F]">
               Discard
             </button>
             <button type="submit" disabled={loading}
-              className="rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-accent/20 hover:bg-accent-hover disabled:opacity-60">
-              {loading ? 'Submitting…' : 'Submit'}
+              className="rounded-xl bg-[#5B4FE9] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#4A3EC8] disabled:opacity-60">
+              {loading ? 'Submitting…' : 'Submit Request'}
             </button>
           </div>
         </form>
@@ -149,7 +158,7 @@ export default function TimeOffRequestModal({ onClose, onSubmitted }) {
 function Field({ label, children }) {
   return (
     <div>
-      <p className="mb-1.5 text-xs font-medium text-slate-400">{label}</p>
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-[#6B6B76]">{label}</p>
       {children}
     </div>
   )
