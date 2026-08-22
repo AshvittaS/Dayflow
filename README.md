@@ -7,8 +7,6 @@ A modern, fast, and comprehensive Human Resource Management System built for str
 ## 🔗 Repository Links
 
 - **Upstream Central Repository**: [https://github.com/AshvittaS/Dayflow.git](https://github.com/AshvittaS/Dayflow.git)
-- **Origin Fork**: [https://github.com/Sanjayprathmanyu02/Dayflow.git](https://github.com/Sanjayprathmanyu02/Dayflow.git)
-- **Active Feature Branch**: `spm`
 
 ---
 
@@ -16,8 +14,8 @@ A modern, fast, and comprehensive Human Resource Management System built for str
 
 ### 1. 🔐 Authentication & Access Control
 - **Dual Role Architecture**: Strict privilege separation between **Admin / HR Officer** and **Employee**.
-- **Company Sign-Up**: Admin onboarding flow with company profile & brand logo branding.
-- **Automated Login-ID Generation**: Deterministic ID generation based on company code, employee initials, joining year, and serial counter.
+- **Interactive Visual Auth**: Interactive SignIn & SignUp screens with dynamic WorkweekHero graphics.
+- **Automated Login-ID Generation**: Deterministic ID generation based on company code, initials, joining year, and serial counter.
 - **Secure Password Flow**: System-generated first credentials with forced password update on initial login.
 
 ### 2. 👥 Employee Directory & Profiles
@@ -35,7 +33,7 @@ A modern, fast, and comprehensive Human Resource Management System built for str
 - **Attendance-Linked Payroll**: Automatic deduction adjustments based on unpaid leaves and attendance metrics.
 
 ### 4. ⏱️ Attendance Management
-- **One-Click Check-In / Check-Out**: Live status updates directly reflecting across the dashboard.
+- **One-Click Check-In / Check-Out**: Live status updates directly reflecting across the dashboard and database.
 - **Self-Service Attendance Log**: Monthly day-by-day table showing check-in times, check-out times, total hours worked, and extra hours.
 - **Admin Multi-Employee Attendance**: Comprehensive cross-organization attendance view with date-filtering and status audits.
 
@@ -48,66 +46,40 @@ A modern, fast, and comprehensive Human Resource Management System built for str
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: [React](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Data Layer**: Modular mock data layer structured for seamless REST API integration
+- **Frontend**: [React](https://react.dev/) + [Vite](https://vitejs.dev/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Icons & UI**: [Lucide React](https://lucide.dev/)
+- **Backend API**: [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/)
+- **Database**: [MySQL](https://www.mysql.com/) + `mysql2/promise`
+- **Authentication**: JSON Web Tokens (JWT) + `bcrypt`
 
 ---
 
 ## 💻 Getting Started
 
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+### 1. Backend Setup & Run
+```bash
+cd dayflow-backend
+npm install
 
-### Installation & Local Setup
+# Setup database & seed demo data:
+npm run schema
+npm run seed
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Sanjayprathmanyu02/Dayflow.git
-   cd Dayflow
-   ```
+# Start server:
+npm run dev
+# Running on http://localhost:4000
+```
 
-2. **Configure Upstream Remote:**
-   ```bash
-   git remote add upstream https://github.com/AshvittaS/Dayflow.git
-   git fetch upstream
-   ```
-
-3. **Navigate to the frontend application:**
-   ```bash
-   cd dayflow-frontend
-   ```
-
-4. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-5. **Start the local development server:**
-   ```bash
-   npm run dev
-   ```
-
-6. **Build for production:**
-   ```bash
-   npm run build
-   ```
+### 2. Frontend Setup & Run
+```bash
+cd dayflow-frontend
+npm install
+npm run dev
+# Running on http://localhost:5173
+```
 
 ---
 
-## 🌿 Git Workflow & Branching Strategy
-
-- `main`: Protected baseline branch (stable, buildable state).
-- `spm`: Working and feature branch for development by `@Sanjayprathmanyu02`.
-- Upstream sync:
-  ```bash
-  git fetch upstream
-  git merge upstream/main
-  ```
-
----
-
-## 📄 License & Attribution
-Developed for the Dayflow HRMS Project.
+## 🔑 Demo Credentials
+- **Admin**: `DF26JD0001` or `jamie.doe@dayflow.dev` / `Password@123`
+- **Employee**: `DF26AK0002` or `alex.kumar@dayflow.dev` / `Password@123`
