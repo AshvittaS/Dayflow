@@ -22,10 +22,12 @@ export default function EmployeeCard({ employee, overrideStatus, isHighlighted }
   const displayStatus = overrideStatus ?? employee?.status ?? 'absent'
   const isSelf = String(employee?.id) === String(user?.employeeId)
 
-  const photoUrl =
-    employee?.avatar ||
-    DEFAULT_AVATARS[String(employee?.id)] ||
-    DEFAULT_AVATARS[employee?.loginId]
+  const rawAvatar = employee?.avatarUrl || employee?.avatar
+  const photoUrl = rawAvatar
+    ? rawAvatar.startsWith('/uploads')
+      ? `http://localhost:4000${rawAvatar}`
+      : rawAvatar
+    : DEFAULT_AVATARS[String(employee?.id)] || DEFAULT_AVATARS[employee?.loginId]
 
   const initials = employee?.name
     ? employee.name

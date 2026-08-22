@@ -1,12 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
-import { X, Edit3, Plus, AlertCircle, Trash2 } from 'lucide-react'
-import { updateEmployee, deleteEmployee } from '../../hooks/useEmployees.js'
+import { X, Edit3, Plus, AlertCircle, Trash2, Camera, Upload, Check } from 'lucide-react'
+import { updateEmployee, deleteEmployee, uploadAvatar } from '../../hooks/useEmployees.js'
 
 const DEPARTMENTS = ['Engineering', 'Design', 'HR', 'Sales', 'Administration']
 const STATUSES = [
   { value: 'present', label: 'Present' },
   { value: 'absent', label: 'Absent' },
   { value: 'leave', label: 'On Leave' }
+]
+
+const STOCK_PRESETS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'
 ]
 
 export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated, onDeleted }) {
@@ -22,15 +31,18 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
     dateOfBirth: employee?.dateOfBirth || '',
     gender: employee?.gender || '',
     address: employee?.address || '',
+    avatarUrl: employee?.avatarUrl || employee?.avatar || '',
     skills: Array.isArray(employee?.skills) ? [...employee.skills] : [],
     certifications: Array.isArray(employee?.certifications) ? [...employee.certifications] : [],
     interests: Array.isArray(employee?.interests) ? [...employee.interests] : [],
     monthWage: employee?.monthWage || ''
   })
 
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState(employee?.avatarUrl || employee?.avatar || '')
+  const fileInputRef = useRef(null)
+
   const [newSkill, setNewSkill] = useState('')
-  const [newCert, setNewCert] = useState('')
-  const [newInterest, setNewInterest] = useState('')
   const [loading, setLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [error, setError] = useState('')
@@ -49,6 +61,40 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
     if (error) setError('')
   }
 
+  function handleFileSelect(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (PNG, JPG, JPEG, WEBP).')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file must be under 5MB.')
+      return
+    }
+    setAvatarFile(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setAvatarPreview(ev.target.result)
+    }
+    reader.readAsDataURL(file)
+    setError('')
+  }
+
+  function handleSelectPreset(presetUrl) {
+    setAvatarFile(null)
+    setAvatarPreview(presetUrl)
+    setFormData((prev) => ({ ...prev, avatarUrl: presetUrl }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function handleRemovePhoto() {
+    setAvatarFile(null)
+    setAvatarPreview('')
+    setFormData((prev) => ({ ...prev, avatarUrl: '' }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   function handleAddSkill() {
     if (!newSkill.trim() || formData.skills.includes(newSkill.trim())) return
     setFormData((prev) => ({ ...prev, skills: [...prev.skills, newSkill.trim()] }))
@@ -59,32 +105,26 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
     setFormData((prev) => ({ ...prev, skills: prev.skills.filter((s) => s !== skill) }))
   }
 
-  function handleAddCert() {
-    if (!newCert.trim() || formData.certifications.includes(newCert.trim())) return
-    setFormData((prev) => ({ ...prev, certifications: [...prev.certifications, newCert.trim()] }))
-    setNewCert('')
-  }
-
-  function handleRemoveCert(cert) {
-    setFormData((prev) => ({ ...prev, certifications: prev.certifications.filter((c) => c !== cert) }))
-  }
-
-  function handleAddInterest() {
-    if (!newInterest.trim() || formData.interests.includes(newInterest.trim())) return
-    setFormData((prev) => ({ ...prev, interests: [...prev.interests, newInterest.trim()] }))
-    setNewInterest('')
-  }
-
-  function handleRemoveInterest(interest) {
-    setFormData((prev) => ({ ...prev, interests: prev.interests.filter((i) => i !== interest) }))
-  }
-
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     setError('')
     try {
-      await updateEmployee(employee.id, formData)
+      // 1. If a local file was uploaded, upload it to the backend endpoint
+      let finalAvatarUrl = formData.avatarUrl
+      if (avatarFile) {
+        const uploadRes = await uploadAvatar(employee.id, avatarFile)
+        if (uploadRes?.avatarUrl) {
+          finalAvatarUrl = uploadRes.avatarUrl
+        }
+      }
+
+      // 2. Update employee profile data
+      await updateEmployee(employee.id, {
+        ...formData,
+        avatarUrl: finalAvatarUrl
+      })
+
       onUpdated?.()
       onClose()
     } catch (err) {
@@ -108,6 +148,18 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
     }
   }
 
+  const initials = formData.name
+    ? formData.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+    : '?'
+
+  const resolvedPreview = avatarPreview?.startsWith('/uploads')
+    ? `http://localhost:4000${avatarPreview}`
+    : avatarPreview
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm animate-in fade-in duration-150"
@@ -125,9 +177,9 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
               <Edit3 className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#1A1A1F]">Edit Profile Information</h2>
+              <h2 className="text-sm font-bold text-[#1A1A1F]">Edit Profile & Photo</h2>
               <p className="text-[11px] text-[#6B6B76]">
-                {isAdmin ? 'Administrative master editor' : 'Update your personal profile details'}
+                {isAdmin ? 'Administrative master profile & photo manager' : 'Update your personal profile and photo'}
               </p>
             </div>
           </div>
@@ -147,6 +199,104 @@ export default function EditProfileModal({ employee, isAdmin, onClose, onUpdated
               <span>{error}</span>
             </div>
           )}
+
+          {/* ── 0. Profile Photo Upload & Selector ── */}
+          <div className="rounded-2xl border border-[#EAEAEC] bg-[#F8F9FA] p-4">
+            <h3 className="font-bold uppercase tracking-wider text-[#6B6B76] mb-3 flex items-center gap-1.5">
+              <Camera className="h-3.5 w-3.5 text-[#5B4FE9]" />
+              Profile Photo
+            </h3>
+
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+              {/* Avatar Preview */}
+              <div className="relative group shrink-0">
+                <div
+                  className="flex h-20 w-20 items-center justify-center rounded-full overflow-hidden border-2 border-white shadow-md bg-[#EEEDFC] text-[#5B4FE9] text-xl font-extrabold ring-2 ring-[#5B4FE9]/20"
+                >
+                  {resolvedPreview ? (
+                    <img
+                      src={resolvedPreview}
+                      alt={formData.name || 'Avatar'}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Upload new photo"
+                >
+                  <Camera className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Upload & Preset Options */}
+              <div className="flex-1 space-y-2.5 text-center sm:text-left">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#EAEAEC] bg-white px-3.5 py-1.5 text-xs font-bold text-[#1A1A1F] hover:bg-[#EEEDFC] hover:text-[#5B4FE9] hover:border-[#5B4FE9]/30 shadow-subtle transition"
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    <span>Upload Local Photo</span>
+                  </button>
+
+                  {resolvedPreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemovePhoto}
+                      className="rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-100 transition"
+                    >
+                      Remove Photo
+                    </button>
+                  )}
+                </div>
+
+                {/* Preset Avatars */}
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B76] mb-1.5">
+                    Or choose a preset portrait:
+                  </p>
+                  <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto py-1">
+                    {STOCK_PRESETS.map((preset, idx) => {
+                      const isSelected = resolvedPreview === preset
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          className={`relative h-8 w-8 rounded-full overflow-hidden border-2 transition-all shrink-0 ${
+                            isSelected
+                              ? 'border-[#5B4FE9] ring-2 ring-[#5B4FE9]/30 scale-110'
+                              : 'border-white hover:border-[#5B4FE9]/50 hover:scale-105'
+                          }`}
+                        >
+                          <img src={preset} alt={`Preset ${idx + 1}`} className="h-full w-full object-cover" />
+                          {isSelected && (
+                            <span className="absolute inset-0 bg-[#5B4FE9]/40 flex items-center justify-center text-white">
+                              <Check className="h-3 w-3 stroke-[3]" />
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* 1. Core Profile Details */}
           <div>

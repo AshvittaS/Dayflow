@@ -32,8 +32,8 @@ export function useEmployees() {
  */
 export function useEmployee(id) {
   const [employee, setEmployee] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(true)
+  const [error, setError]       = useState(null)
 
   const fetchEmp = useCallback(async () => {
     if (!id) { setLoading(false); return }
@@ -68,6 +68,15 @@ export async function createEmployee(data) {
  */
 export async function updateEmployee(id, data) {
   return await api.put(`/employees/${id}`, data)
+}
+
+/**
+ * Upload employee avatar photo
+ */
+export async function uploadAvatar(id, file) {
+  const formData = new FormData()
+  formData.append('avatar', file)
+  return await api.postForm(`/employees/${id}/avatar`, formData)
 }
 
 /**

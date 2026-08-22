@@ -159,7 +159,12 @@ export default function EmployeesPage() {
           <div className="flex items-center gap-5 overflow-x-auto py-2.5 px-2 scrollbar-none">
             {employees.map((emp) => {
               const isSelf = String(emp.id) === String(user?.employeeId)
-              const photo = emp.avatar || PULSE_AVATARS[String(emp.id)] || PULSE_AVATARS[emp.loginId]
+              const rawAvatar = emp.avatarUrl || emp.avatar
+              const photo = rawAvatar
+                ? rawAvatar.startsWith('/uploads')
+                  ? `http://localhost:4000${rawAvatar}`
+                  : rawAvatar
+                : PULSE_AVATARS[String(emp.id)] || PULSE_AVATARS[emp.loginId]
               const initials = emp.name
                 .split(' ')
                 .map((n) => n[0])

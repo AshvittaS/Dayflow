@@ -13,7 +13,8 @@ import {
   Calendar,
   CreditCard,
   Briefcase,
-  Edit3
+  Edit3,
+  Camera
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useEmployee } from '../../hooks/useEmployees.js'
@@ -75,10 +76,12 @@ export default function ProfilePage() {
     )
   }
 
-  const photoUrl =
-    viewedEmployee?.avatar ||
-    DEFAULT_AVATARS[String(viewedEmployee?.id)] ||
-    DEFAULT_AVATARS[viewedEmployee?.loginId]
+  const rawAvatar = viewedEmployee?.avatarUrl || viewedEmployee?.avatar
+  const photoUrl = rawAvatar
+    ? rawAvatar.startsWith('/uploads')
+      ? `http://localhost:4000${rawAvatar}`
+      : rawAvatar
+    : DEFAULT_AVATARS[String(viewedEmployee?.id)] || DEFAULT_AVATARS[viewedEmployee?.loginId]
 
   const initials = viewedEmployee.name
     ? viewedEmployee.name
@@ -125,8 +128,8 @@ export default function ProfilePage() {
         {/* ── Left Column: Sticky Identity Dossier (Avatar, Name, Quick Contacts) ── */}
         <div className="w-full lg:w-80 shrink-0 lg:sticky lg:top-24 space-y-4">
           <div className="rounded-2xl border border-[#EAEAEC] bg-white p-6 shadow-subtle text-center flex flex-col items-center">
-            {/* Real Profile Photo with Status Indicator & Fallback */}
-            <div className="relative mb-4">
+            {/* Real Profile Photo with Status Indicator & Quick Edit Overlay */}
+            <div className="relative mb-4 group">
               <div
                 className="relative flex items-center justify-center rounded-full overflow-hidden ring-4 ring-[#F8F9FA] shadow-md mx-auto"
                 style={{ width: '84px', height: '84px' }}
@@ -143,8 +146,20 @@ export default function ProfilePage() {
                     {initials}
                   </div>
                 )}
+
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(true)}
+                    className="absolute inset-0 bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                    title="Change Profile Photo"
+                  >
+                    <Camera className="h-4 w-4" />
+                    <span className="text-[9px] font-bold mt-0.5">Edit</span>
+                  </button>
+                )}
               </div>
-              <span className="absolute bottom-0 right-0">
+              <span className="absolute bottom-0 right-0 z-10">
                 <StatusDot status={viewedEmployee.status || 'absent'} size="lg" />
               </span>
             </div>

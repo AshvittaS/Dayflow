@@ -1,12 +1,36 @@
 import { Router } from 'express'
 import { body, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 import pool from '../db.js'
 import auth from '../middleware/auth.js'
 import requireRole from '../middleware/requireRole.js'
 import { nextLoginId } from '../utils/loginId.js'
 
 const router = Router()
+
+// Configure avatar uploads directory
+const avatarDir = path.resolve('uploads/avatars')
+if (!fs.existsSync(avatarDir)) fs.mkdirSync(avatarDir, { recursive: true })
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, avatarDir),
+  filename: (_req, file, cb) => {
+    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+    cb(null, `avatar-${unique}${path.extname(file.originalname)}`)
+  }
+})
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['.png', '.jpg', '.jpeg', '.webp', '.svg']
+    if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true)
+    else cb(new Error('Only PNG, JPG, JPEG, WEBP, SVG files are allowed.'))
+  }
+})
 
 // ─── GET /employees ──────────────────────────────────────────────────────────
 router.get('/', auth, async (req, res) => {
@@ -70,7 +94,7 @@ router.post(
     const errors = validationResult(req)
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() })
 
-    const { name, email, department, title, location, mobile, manager, about, monthWage } = req.body
+    const { name, email, department, title, location, mobile, manager, about, monthWage, avatarUrl } = req.body
     const conn = await pool.getConnection()
     try {
       await conn.beginTransaction()
@@ -106,9 +130,9 @@ router.post(
       const userId = userResult.insertId
 
       const [empResult] = await conn.query(
-        `INSERT INTO employees (user_id, name, department, title, location, manager, mobile, about, join_date)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
-        [userId, name, department, title || department, location || 'Bengaluru', manager || null, mobile, about || null]
+        `INSERT INTO employees (user_id, name, department, title, location, manager, mobile, about, avatar_url, join_date)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
+        [userId, name, department, title || department, location || 'Bengaluru', manager || null, mobile, about || null, avatarUrl || null]
       )
       const employeeId = empResult.insertId
 
@@ -150,7 +174,7 @@ router.post(
 
       res.status(201).json({
         message: 'Employee created successfully.',
-        employee: { id: employeeId, name, email, loginId, department },
+        employee: { id: employeeId, name, email, loginId, department, avatarUrl },
         initialPassword,
         note: 'Share the initialPassword with the employee securely.'
       })
@@ -163,6 +187,30 @@ router.post(
     }
   }
 )
+
+// ─── POST /employees/:id/avatar — upload profile photo ───────────────────────
+router.post('/:id/avatar', auth, upload.single('avatar'), async (req, res) => {
+  const targetId = Number(req.params.id)
+  const isAdmin = req.user.role === 'admin' || req.user.role === 'hr' || req.user.role === 'hr_officer'
+  const isSelf = Number(req.user.employeeId) === targetId
+
+  if (!isAdmin && !isSelf) {
+    return res.status(403).json({ error: 'Cannot edit another employee\'s avatar.' })
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No avatar file uploaded.' })
+  }
+
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`
+  try {
+    await pool.query('UPDATE employees SET avatar_url = ? WHERE id = ?', [avatarUrl, targetId])
+    res.json({ message: 'Profile photo updated successfully.', avatarUrl })
+  } catch (err) {
+    console.error('POST /employees/:id/avatar:', err)
+    res.status(500).json({ error: 'Failed to update avatar.' })
+  }
+})
 
 // ─── PUT /employees/:id — self (personal details) or admin/HR (all fields) ────
 router.put(
@@ -192,6 +240,7 @@ router.put(
       dateOfBirth,
       gender,
       address,
+      avatarUrl,
       monthWage
     } = req.body
 
@@ -199,8 +248,6 @@ router.put(
     try {
       await conn.beginTransaction()
 
-      // Updates allowed for self: personal details, about, skills, interests, certifications
-      // Updates allowed for admin: above + department, title, location, status, manager, monthWage
       await conn.query(
         `UPDATE employees SET
            name           = COALESCE(?, name),
@@ -214,6 +261,7 @@ router.put(
            date_of_birth  = COALESCE(?, date_of_birth),
            gender         = COALESCE(?, gender),
            address        = COALESCE(?, address),
+           avatar_url     = COALESCE(?, avatar_url),
            skills         = COALESCE(?, skills),
            certifications = COALESCE(?, certifications),
            interests      = COALESCE(?, interests)
@@ -226,6 +274,7 @@ router.put(
           dateOfBirth || null,
           gender || null,
           address || null,
+          avatarUrl || null,
           skills ? JSON.stringify(skills) : null,
           certifications ? JSON.stringify(certifications) : null,
           interests ? JSON.stringify(interests) : null,
